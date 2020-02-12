@@ -1,10 +1,11 @@
 import logging 
-from enum import Enum
 import json
 
 import boto3
 
 from .modules.ec2_instances import _tf_process_instances, _boto_fetch_instances, _compare_instances
+
+from .data_structures import ScanMode, StateStorage, RDConfig, ReportElement 
 
 logger = logging.getLogger(__name__)
 
@@ -27,37 +28,11 @@ _ignore_types = (
                 'aws_iam_policy_attachment', 'aws_default_route_table', 'aws_sqs_queue_policy'
                )
 
-class ScanMode(Enum):
-    """
-    Mode of operation of scanner
-    """
-
-    LIGHT = 1
-    DEEP = 2
+_scan_map = {
+    'aws_instances': { 'aws_scan_func': _boto_fetch_instances, 'compare_func': _compare_instances }
+}
 
 
-class StateStorage(Enum):
-    AWS_S3 = 1
-    # FILE = 2
-
-
-class RDConfig():
-    """
-    RiffDog Config Object for controlling the scan.
-    """
-
-    scan_mode = ScanMode.LIGHT
-
-    state_storage = StateStorage.AWS_S3
-    state_file_locations = []
-    regions = ['us-east-1']
-
-
-
-class Report():
-    """
-    Output report object for reporting things it finds.
-    """
 
 
 def scan(config):
@@ -69,8 +44,6 @@ def scan(config):
     # be all setup to just work(tm)
 
     # Future JT will hate past JT for these assumptions.
-
-    results = Report()
 
     items = _get_blank_state_dict()
 
@@ -99,16 +72,25 @@ def scan(config):
     real_items = _get_blank_state_dict()
     
     for region in config.regions:
-       real_items['instances'].update(_boto_fetch_instances(region))
+       real_items['aws_instances'].update(_boto_fetch_instances(region))
 
-    _compare_instances(items['instances'], real_items['instances'], config)
+    report = {}
+
+    for scan_element in config.elements_to_scan:
+        logger.info("Now inspecting %s" % scan_element)
+        real_items = {}
+        for region in config.regions:
+            real_items.update(_scan_map[scan_element]['aws_scan_func'](region))
+            
+        report[scan_element] = _scan_map[scan_element]['compare_func'](items[scan_element], real_items, config)
+
 
     logger.info("Scan Complete")
-    return results
+    return report
 
 def _get_blank_state_dict():
     return {
-        "instances": {},
+        "aws_instances": {},
         "buckets": {},
         "rds": {}
     }
@@ -158,7 +140,7 @@ def search_state(bucket_name, key, s3):
 
             elif res['type'] == "aws_instance":
                 found = _tf_process_instances(res, key)
-                outs['instances'].update(found)
+                outs['aws_instances'].update(found)
 
             elif res['type']=="aws_s3_bucket":
                 found = _process_s3(res, key)
