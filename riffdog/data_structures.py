@@ -28,7 +28,7 @@ class RDConfig():
 
     state_storage = StateStorage.AWS_S3
     state_file_locations = []
-    regions = ['us-east-1']
+    regions = []
 
     elements_to_scan = [
         'aws_instances'
