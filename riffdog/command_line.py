@@ -100,9 +100,10 @@ def main(*args):
     if parsed_args.json:
         print(dumps(results, cls=ReportEncoder))
     else:
+        table_data = []
 
         for key, report in results.items():
-            table_data = [[key, e, "✓", "x"] for e in report.in_aws_but_not_tf]
+            table_data += [[key, e, "✓", "x"] for e in report.in_aws_but_not_tf]
             table_data += [[key, e, "x", "✓"] for e in report.in_tf_but_not_aws]
 
             if parsed_args.show_matched:
