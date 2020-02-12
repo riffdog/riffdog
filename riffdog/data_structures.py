@@ -31,7 +31,8 @@ class RDConfig():
     regions = []
 
     elements_to_scan = [
-        'aws_instance'
+        'aws_instance',
+        'aws_s3_bucket'
     ]
 
 
