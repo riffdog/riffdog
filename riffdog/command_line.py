@@ -88,6 +88,12 @@ def main(*args):
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
 
+
+    # If there are no statefiles, quit early.
+    if len(config.state_file_locations) == 0:
+        print("No state file locations given - stopping scan early")
+        return
+
     # 3. Start scans
     results = scan(config)
 
