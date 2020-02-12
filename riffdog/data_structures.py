@@ -31,7 +31,7 @@ class RDConfig():
     regions = ['us-east-1']
 
     elements_to_scan = [
-        'aws_instances'
+        'aws_instance'
     ]
 
 
