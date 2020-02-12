@@ -1,7 +1,10 @@
 import logging
 import os
-import argparse 
+import argparse
+
 from json import dumps, JSONEncoder
+
+from tabulate import tabulate
 
 from .scanner import scan
 from .data_structures import RDConfig, StateStorage, ScanMode, ReportElement
@@ -53,6 +56,7 @@ def main(*args):
     parser.add_argument('-b', '--bucket', help='Bucket containing state file location', action='append', nargs=1)
     parser.add_argument('--json', help='Produce Json output rather then Human Readble', action='store_const', const=True)
     parser.add_argument('--region', help="AWS regions to use", action='append')
+    parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)
 
 
     # Parse args.
@@ -83,31 +87,28 @@ def main(*args):
 
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
-    
+
     # 3. Start scans
     results = scan(config)
 
     if parsed_args.json:
         print(dumps(results, cls=ReportEncoder))
     else:
+
         for key, report in results.items():
-            print("Inspected %s" % key)
-            
-            print("\tMatched ok:")
-            for element in report.matched:
-                print("\t\t%s" % element)
+            table_data = [[key, e, "✓", "x"] for e in report.in_aws_but_not_tf]
+            table_data += [[key, e, "x", "✓"] for e in report.in_tf_but_not_aws]
 
-            print("\tIn Terraform but NOT in AWS:")
-            for element in report.in_tf_but_not_aws:
-                print("\t\t%s" % element)
-    
-            print("\tIn AWS but NOT in Terraform:")
-            for element in report.in_aws_but_not_tf:
-                print("\t\t%s" % element)
+            if parsed_args.show_matched:
+                table_data += [[key, e, "✓", "✓"] for e in report.matched]
+                table_data.reverse()   # We want matched at the top (a bit more out the way), a but more human friendly.
 
-            print("----")
-        print("Please note, for elements in AWS but not in Terraform, make sure you've scanned all your state files.")
+        print(tabulate(
+            table_data,
+            headers=["Resource Type", "Identifier", "AWS", "Terraform"]))
+
+        print("-------------------------")
+        print ("Please note, for elements in AWS but not in Terraform, make sure you've scanned all your state files.")
+
     # 4. Report
     logger.debug("Cmd finished")
-
-
