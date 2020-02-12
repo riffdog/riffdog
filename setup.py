@@ -10,6 +10,8 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+
+
 setup(
     name='riffdog',
 
@@ -17,10 +19,11 @@ setup(
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
 
-    version='0.0.0-alpha-1',
+    version='0.0.0-alpha-2',
 
     description='Terraform - AWS Scanner',
     long_description=long_description,
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
     url='https://github.com/jmons/riffdog',
