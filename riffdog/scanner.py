@@ -102,7 +102,7 @@ def _search_state(bucket_name, key, s3, found):
 
     try:
         rd = ResourceDirectory()
-        for res in  parsed['resources']:
+        for res in parsed['resources']:
             if res['type'] in found:
                 # its already loaded!
                 logging.debug("Resource Matched Existing %s" % res['type'])
@@ -124,11 +124,4 @@ def _search_state(bucket_name, key, s3, found):
 
     return found 
 
-def _process_s3(s3, state_filename):
-    
-    outs = {}
-    for bucket in s3['instances']:
-        outs[bucket['bucket']] = bucket
-
-    return outs
 
