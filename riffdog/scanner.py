@@ -35,25 +35,6 @@ def scan(config):
 
     for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__),"resources")]):
         imported_module = import_module('riffdog.resources.%s' % name)
-        # for element in dir(import_module):
-        #     if not element.startswith("__"):
-        #         suspect_class = getattr(imported_module, class_name[0])
-        #         if issubclass(suspect_class, Resource):
-        #             target = suspect_class.register()
-        #             logging.info("Found %s -> %s " % (target, element))
-        #         else:
-        #             logging.info("This %s is not a thing" %)
-
-    for r in ResourceDirectory.instance.found_resources.keys():
-        print(r)
- 
-
-   # fish_class = getattr(imported_module, class_name[0])
-
-   # if issubclass(fish_class, AnimalBaseClass):
-   #     setattr(sys.modules[__name__], name, fish_class)
-
-   # items = _get_blank_state_dict()
 
 
     if config.state_storage == StateStorage.AWS_S3:
@@ -106,7 +87,6 @@ def _s3_state_fetch(bucket_name):
     found = {}
 
     for item in items['Contents']:
-        #print(item['Key'])
         if item['Key'].endswith("terraform.tfstate"):
             found = _search_state(bucket_name, item['Key'], s3, found)
 
@@ -123,7 +103,6 @@ def _search_state(bucket_name, key, s3, found):
     try:
         rd = ResourceDirectory()
         for res in  parsed['resources']:
-            #print(res['type'])
             if res['type'] in found:
                 # its already loaded!
                 logging.debug("Resource Matched Existing %s" % res['type'])
@@ -149,7 +128,6 @@ def _process_s3(s3, state_filename):
     
     outs = {}
     for bucket in s3['instances']:
-        #print(bucket)
         outs[bucket['bucket']] = bucket
 
     return outs

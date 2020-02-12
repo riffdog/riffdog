@@ -43,15 +43,12 @@ class ResourceDirectory(object):
 
 
 def register(resource_name):
-    print("in the register?")
     
     def actual_decorator(constructor):
         logger.info("resource tagged %s - %s " % (resource_name , constructor))
 
         @functools.wraps(constructor)
         def wrapper(*args, **kwargs):
-            print("In the construct?")
-            print("inner type %s " % type(constructor))
             return constructor(*args, **kwargs)
 
         rd = ResourceDirectory()
