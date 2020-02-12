@@ -74,7 +74,8 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "boto3>=1.11.14"
+        "boto3>=1.11.14",
+        "tabulate>=0.8.6"
     ],
 
     entry_points = {
