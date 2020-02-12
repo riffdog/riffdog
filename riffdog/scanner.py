@@ -69,11 +69,6 @@ def scan(config):
 
     logger.info("Now Looking at AWS (via Boto)")
 
-    real_items = _get_blank_state_dict()
-    
-    for region in config.regions:
-       real_items['aws_instances'].update(_boto_fetch_instances(region))
-
     report = {}
 
     for scan_element in config.elements_to_scan:
