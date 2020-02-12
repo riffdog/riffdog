@@ -29,7 +29,7 @@ _ignore_types = (
                )
 
 _scan_map = {
-    'aws_instances': { 'aws_scan_func': _boto_fetch_instances, 'compare_func': _compare_instances }
+    'aws_instance': { 'aws_scan_func': _boto_fetch_instances, 'compare_func': _compare_instances }
 }
 
 
@@ -85,7 +85,7 @@ def scan(config):
 
 def _get_blank_state_dict():
     return {
-        "aws_instances": {},
+        "aws_instance": {},
         "buckets": {},
         "rds": {}
     }
@@ -135,7 +135,7 @@ def search_state(bucket_name, key, s3):
 
             elif res['type'] == "aws_instance":
                 found = _tf_process_instances(res, key)
-                outs['aws_instances'].update(found)
+                outs['aws_instance'].update(found)
 
             elif res['type']=="aws_s3_bucket":
                 found = _process_s3(res, key)
