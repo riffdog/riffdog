@@ -91,7 +91,7 @@ def main(*args):
 
     # If there are no statefiles, quit early.
     if len(config.state_file_locations) == 0:
-        print("No state file locations given - stopping scan early")
+        print("No state file locations given - stopping scan early - run `riffdog -h`  for help")
         return
 
     # 3. Start scans

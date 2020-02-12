@@ -69,4 +69,5 @@ Automated testing of this system is quite difficult. Ultimatly these are here to
 
 # Version History
 
-* _0.0.1-Alpha*_ Alpha releases to get basic framework availible and running for some use cases.
+* _0.0.0a1_ 12th Feb 2020 Alpha releases to get basic framework availible and running for some use cases.
+* _0.0.0a2_ 13th Feb 2020 Update to framework, output formatting and config fixes.
