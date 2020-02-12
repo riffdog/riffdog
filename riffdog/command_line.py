@@ -61,7 +61,7 @@ def main(*args):
 
     logging_level = logging.ERROR
 
-    if parsed_args.verbose != None:
+    if parsed_args.verbose is not None:
         if parsed_args.verbose > 2:
             logging_level = logging.DEBUG
         elif parsed_args.verbose == 2:
@@ -81,7 +81,7 @@ def main(*args):
     config.state_storage = StateStorage.AWS_S3
     config.regions = get_regions(parsed_args.region)
 
-    if parsed_args.bucket != None:
+    if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
     
     # 3. Start scans
@@ -106,7 +106,7 @@ def main(*args):
                 print("\t\t%s" % element)
 
             print("----")
-        print ("Please note, for elements in AWS but not in Terraform, make sure you've scanned all your state files.")
+        print("Please note, for elements in AWS but not in Terraform, make sure you've scanned all your state files.")
     # 4. Report
     logger.debug("Cmd finished")
 
