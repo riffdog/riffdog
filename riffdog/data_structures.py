@@ -31,7 +31,8 @@ class RDConfig():
     regions = []
 
     elements_to_scan = [
-        'aws_instance'
+        'aws_instance',
+        'aws_s3_bucket'
     ]
 
 
@@ -40,6 +41,11 @@ class ReportElement():
     Output report object for reporting things it finds.
     """
 
-    matched = []
-    in_tf_but_not_aws = []
-    in_aws_but_not_tf = []
+    matched = None
+    in_tf_but_not_real = None
+    in_real_but_not_tf = None
+
+    def __init__(self):
+        self.matched = []
+        self.in_tf_but_not_real = []
+        self.in_real_but_not_tf = []

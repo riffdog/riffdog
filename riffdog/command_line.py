@@ -18,8 +18,8 @@ class ReportEncoder(JSONEncoder):
         if type(o) == ReportElement:
             return {
                 "matched": o.matched,
-                "notInAWS": o.in_tf_but_not_aws,
-                "notInTF": o.in_aws_but_not_tf
+                "notInAWS": o.in_tf_but_not_real,
+                "notInTF": o.in_real_but_not_tf
             }
         else:
             return o.__dict__
@@ -100,10 +100,11 @@ def main(*args):
     if parsed_args.json:
         print(dumps(results, cls=ReportEncoder))
     else:
+        table_data = []
 
         for key, report in results.items():
-            table_data = [[key, e, "✓", "x"] for e in report.in_aws_but_not_tf]
-            table_data += [[key, e, "x", "✓"] for e in report.in_tf_but_not_aws]
+            table_data += [[key, e, "✓", "x"] for e in report.in_real_but_not_tf]
+            table_data += [[key, e, "x", "✓"] for e in report.in_tf_but_not_real]
 
             if parsed_args.show_matched:
                 table_data += [[key, e, "✓", "✓"] for e in report.matched]
@@ -111,10 +112,10 @@ def main(*args):
 
         print(tabulate(
             table_data,
-            headers=["Resource Type", "Identifier", "AWS", "Terraform"]))
+            headers=["Resource Type", "Identifier", "Real", "Terraform"]))
 
         print("-------------------------")
-        print ("Please note, for elements in AWS but not in Terraform, make sure you've scanned all your state files.")
+        print ("Please note, for elements in 'Real' (aka AWS) but not in Terraform, make sure you've scanned all your state files.")
 
     # 4. Report
     logger.debug("Cmd finished")
