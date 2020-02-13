@@ -32,8 +32,8 @@ jobs:
       with:
         path: './riffdog'
 
-    - name: Test with pytest
+    - name: Test with tox
       run: |
-        pip install pytest
-        pytest
+        pip install tox
+        tox
 
