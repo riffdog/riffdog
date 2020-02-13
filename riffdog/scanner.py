@@ -18,8 +18,6 @@ from .resource import ResourceDirectory
 logger = logging.getLogger(__name__)
 
 
-
-
 def scan(config):
 
     # in this initial version, lets make some assumptions about things and then
@@ -67,8 +65,8 @@ def scan(config):
         if not scan_element in found:
             found[scan_element] = rd.lookup(scan_element)() # put a blank one in
         
-        for region in config.regions:
-            found[scan_element].fetch_real_resources(region)
+        
+        found[scan_element].fetch_real_resources()
     
         # now compare
         report[scan_element] =  found[scan_element].compare(config, None) # FIME - set depth

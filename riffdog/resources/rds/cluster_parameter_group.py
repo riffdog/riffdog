@@ -15,7 +15,7 @@ class AWSRDSClusterParameterGroup(AWSResource):
     _cluster_pgs_in_aws = {}
     _cluster_pgs_in_state = {}
 
-    def fetch_real_resources(self, region):
+    def fetch_real_regional_resources(self, region):
         logging.info("Looking for RDS resources")
 
         client = self._get_client("rds", region)
