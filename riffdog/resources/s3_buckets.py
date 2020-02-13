@@ -50,4 +50,3 @@ class S3Buckets(AWSResource):
                 out_report.in_real_but_not_tf.append(key)
 
         return out_report
-

@@ -5,6 +5,7 @@ and the command line interface
 
 from enum import Enum
 
+
 class ScanMode(Enum):
     """
     Mode of operation of scanner
@@ -19,7 +20,7 @@ class StateStorage(Enum):
     # FILE = 2
 
 
-class RDConfig():
+class RDConfig:
     """
     RiffDog Config Object for controlling the scan.
     """
@@ -45,7 +46,7 @@ class RDConfig():
         return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
 
 
-class ReportElement():
+class ReportElement:
     """
     Output report object for reporting things it finds.
     """

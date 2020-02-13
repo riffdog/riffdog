@@ -10,7 +10,7 @@ from ..resource import AWSResource, register
 logger = logging.getLogger(__name__)
 
 
-# FIXME: this should be def InstanceResource(Resource) but it messes the dynamic loading 
+# FIXME: this should be def InstanceResource(Resource) but it messes the dynamic loading
 
 @register("aws_instance")
 class InstanceResource(AWSResource):
@@ -20,12 +20,11 @@ class InstanceResource(AWSResource):
 
     def fetch_real_resources(self, region):
         client = self._get_client('ec2', region)
-    
+
         instances = client.describe_instances()
 
         if instances:
-            if(len(instances["Reservations"]) > 0):
-                ec2 = self._get_resource('ec2', region)
+            if len(instances["Reservations"]) > 0:
                 vpcs = client.describe_vpcs()
 
             for reservation in instances["Reservations"]:
@@ -43,15 +42,12 @@ class InstanceResource(AWSResource):
                     name = "Unknown"
                     ips = ""
                     public = False
-                    applications = ""
                     tags = {}
-
-                    tag_keys = [tag["Key"] for tag in instance["Tags"]]
 
                     for tag in instance['Tags']:
                         if tag["Key"] == "Name":
                             name = tag["Value"]
-                        
+
                         else:
                             key = tag["Key"].replace(" ", "")
                             tags[key] = tag["Value"]
@@ -84,18 +80,13 @@ class InstanceResource(AWSResource):
                         "region": region,
                         "vpc": vpc,
                         "aws_id": instance["InstanceId"],
-                        "original_boto":instance
+                        "original_boto": instance,
                     }
 
-
     def process_state_resource(self, state_resource, state_filename):
-        
-        #print("------")
         for instance in state_resource['instances']:
-        #print("   > %s " % instance)
             instance['state_filename'] = state_filename
             self._states_found[instance['attributes']['id']] = instance
-   
 
     def compare(self, config, depth):
         # this function should be called once, take the local data and return
@@ -108,12 +99,11 @@ class InstanceResource(AWSResource):
             else:
                 out_report.matched.append(key)
 
-        for key, val in  self._real_servers.items():
+        for key, val in self._real_servers.items():
             if key not in self._states_found:
                 out_report.in_real_but_not_tf.append(key)
 
         return out_report
-
 
 
 def _get_VPC_name(client, vpc_id, vpcs=None):
@@ -121,8 +111,8 @@ def _get_VPC_name(client, vpc_id, vpcs=None):
         vpcs = client.describe_vpcs()
 
     for vpc_data in vpcs["Vpcs"]:
-        if(vpc_data["VpcId"] == vpc_id):
-            if "Tags" in vpc_data: 
+        if vpc_data["VpcId"] == vpc_id:
+            if "Tags" in vpc_data:
                 vpc_tags = vpc_data["Tags"]
                 for vpc_tag in vpc_tags:
                     if vpc_tag["Key"] == "Name":

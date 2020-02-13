@@ -27,10 +27,9 @@ class ResourceDirectory(object):
             else:
                 return None
 
-            
-
     instance = None
-    def __new__(cls): # __new__ always a classmethod
+
+    def __new__(cls):  # __new__ always a classmethod
         if not ResourceDirectory.instance:
             ResourceDirectory.instance = ResourceDirectory.__ResourceDirectory()
         return ResourceDirectory.instance
@@ -43,9 +42,9 @@ class ResourceDirectory(object):
 
 
 def register(resource_name):
-    
+
     def actual_decorator(constructor):
-        logger.info("resource tagged %s - %s " % (resource_name , constructor))
+        logger.info("resource tagged %s - %s " % (resource_name, constructor))
 
         @functools.wraps(constructor)
         def wrapper(*args, **kwargs):
@@ -58,19 +57,18 @@ def register(resource_name):
     return actual_decorator
 
 
-class Resource():
+class Resource:
     """
     Base Resource Class
     """
-
 
     def fetch_real_resources(self, region):
         # This may be called multiple times for each region in the scan list
         # i.e. append
         raise NotImplementedError()
 
-    def process_state_resource(state_resource):
-        # This function is called potentilly multiple times as each resource
+    def process_state_resource(self, state_resource):
+        # This function is called potentially multiple times as each resource
         # is discovered by the state scanner i.e. append results to local store
         raise NotImplementedError()
 
@@ -87,7 +85,6 @@ class AWSResource(Resource):
     Middle Inheritance to handle getting the correct client & resource objects
     """
 
-
     def _get_client(self, aws_client_type, region):
 
         # FIXME: Some previous code to bring back to allow alternative queries
@@ -99,15 +96,14 @@ class AWSResource(Resource):
         #         region_name=region, aws_access_key_id=credentials['AccessKeyId'],
         #         aws_secret_access_key=credentials['SecretAccessKey'],
         #         aws_session_token=credentials['SessionToken'])
-        #else:
+        # else:
         #   client = boto3.client(
-        ##        aws_client_type,
+        #       aws_client_type,
         #       region_name=region,
         #       aws_access_key_id=account.key,
         #       aws_secret_access_key=account.secret)
 
         client = boto3.client(aws_client_type, region_name=region)
-        
         return client
 
     def _get_resource(self, aws_resource_type, region):
@@ -130,6 +126,4 @@ class AWSResource(Resource):
         #         aws_secret_access_key=account.secret)
 
         resource = boto3.resource(aws_resource_type, region_name=region)
-
         return resource
-

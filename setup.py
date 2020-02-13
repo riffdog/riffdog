@@ -11,7 +11,6 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-
 setup(
     name='riffdog',
 
@@ -58,7 +57,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7'
+        'Programming Language :: Python :: 3.7',
     ],
 
     # What does your project relate to?
@@ -66,7 +65,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['tests',]),
+    packages=find_packages(exclude=['tests', ]),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -80,8 +79,7 @@ setup(
         "boto3>=1.11.14",
         "tabulate>=0.8.6"
     ],
-
-    entry_points = {
+    entry_points={
         'console_scripts': ['riffdog=riffdog.command_line:main'],
     }
 

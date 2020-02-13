@@ -7,7 +7,7 @@ from json import dumps, JSONEncoder
 from tabulate import tabulate
 
 from .scanner import scan
-from .data_structures import RDConfig, StateStorage, ScanMode, ReportElement
+from .data_structures import RDConfig, StateStorage, ReportElement
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGION = 'us-east-1'
@@ -47,21 +47,16 @@ def main(*args):
     """
     This is the command line entry point
     """
-
     # Pre-stuff - use argparser to get command line arguments
-
     parser = argparse.ArgumentParser(description='Terraform - AWS infrastructure scanner')
-
     parser.add_argument('-v', '--verbose', help='Run in Verbose mode (try -vv for info output)', action='count')
     parser.add_argument('-b', '--bucket', help='Bucket containing state file location', action='append', nargs=1)
-    parser.add_argument('--json', help='Produce Json output rather then Human Readble', action='store_const', const=True)
+    parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--region', help="AWS regions to use", action='append')
-    parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)
+    parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append')
 
-
     # Parse args.
-
     parsed_args = parser.parse_args()
 
     logging_level = logging.ERROR
@@ -90,7 +85,6 @@ def main(*args):
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
 
-
     # If there are no statefiles, quit early.
     if len(config.state_file_locations) == 0:
         print("No state file locations given - stopping scan early - run `riffdog -h`  for help")
@@ -117,7 +111,8 @@ def main(*args):
             headers=["Resource Type", "Identifier", "Real", "Terraform"]))
 
         print("-------------------------")
-        print ("Please note, for elements in 'Real' (aka AWS) but not in Terraform, make sure you've scanned all your state files.")
+        print("Please note, for elements in 'Real' (aka AWS) but not in Terraform, "
+              "make sure you've scanned all your state files.")
 
     # 4. Report
     logger.debug("Cmd finished")
