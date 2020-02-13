@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 @register("aws_db_instance")
-class AWSRDSClusterInstance(AWSResource):
+class AWSDBInstance(AWSResource):
     """
     These are a faux thing to Terraform. An aws_rds_cluster_instance is
     just an aws_db_instance that belongs to a Cluster.
