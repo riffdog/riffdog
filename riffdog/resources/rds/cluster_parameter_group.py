@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 @register("aws_rds_cluster_parameter_group")
-class AWSRDSParameterGroup(AWSResource):
+class AWSRDSClusterParameterGroup(AWSResource):
     _cluster_pgs_in_aws = {}
     _cluster_pgs_in_state = {}
 
