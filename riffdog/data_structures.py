@@ -33,7 +33,11 @@ class RDConfig():
 
     base_elements_to_scan = [
         'aws_instance',
-        'aws_s3_bucket'
+        'aws_s3_bucket',
+        'aws_rds_cluster',
+        'aws_rds_cluster_instance',
+        'aws_rds_cluster_parameter_group',
+        'aws_db_instance',
     ]
 
     @property
