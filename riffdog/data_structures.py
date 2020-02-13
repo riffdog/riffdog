@@ -29,11 +29,16 @@ class RDConfig():
     state_storage = StateStorage.AWS_S3
     state_file_locations = []
     regions = []
+    excluded_resources = []
 
-    elements_to_scan = [
+    base_elements_to_scan = [
         'aws_instance',
         'aws_s3_bucket'
     ]
+
+    @property
+    def elements_to_scan(self):
+        return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
 
 
 class ReportElement():
