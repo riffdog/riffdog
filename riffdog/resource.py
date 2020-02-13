@@ -16,7 +16,7 @@ class ResourceDirectory(object):
             self.found_resources = {}
 
         def __str__(self):
-            return str(found_resources)
+            return str(self.found_resources)
 
         def add(self, key, target_type):
             self.found_resources[key] = target_type

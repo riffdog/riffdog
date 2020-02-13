@@ -1,4 +1,0 @@
--r requirements.txt
-
-pytest==5.3.5
-mock==4.0.1
