@@ -35,7 +35,8 @@ class RDConfig():
         'aws_s3_bucket',
         'aws_rds_cluster',
         'aws_rds_cluster_instance',
-        'aws_rds_cluster_parameter_group'
+        'aws_rds_cluster_parameter_group',
+        'aws_db_instance',
     ]
 
 
