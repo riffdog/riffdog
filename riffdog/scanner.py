@@ -33,9 +33,14 @@ def scan(config):
     # Build scan map:
     rd = ResourceDirectory()
 
-    for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__),"resources")]):
-        imported_module = import_module('riffdog.resources.%s' % name)
-
+    for (_, name, is_package) in pkgutil.walk_packages([os.path.join(os.path.dirname(__file__), "resources")]):
+        if is_package:
+            package_name = name
+            for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "resources", package_name)]):
+                import_module('riffdog.resources.%s.%s' % (package_name, name))
+        else:
+            for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "resources")]):
+                import_module('riffdog.resources.%s' % name)
 
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.
