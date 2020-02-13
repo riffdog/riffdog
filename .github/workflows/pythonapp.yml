@@ -9,10 +9,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -27,7 +29,9 @@ jobs:
 
     - name: Bandit Check
       uses: jpetrucciani/bandit-check@1.6.2
-      
+      with:
+        path: './riffdog'
+
     - name: Test with pytest
       run: |
         pip install pytest
