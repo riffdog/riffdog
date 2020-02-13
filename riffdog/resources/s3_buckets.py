@@ -14,10 +14,12 @@ class S3Buckets(AWSResource):
     _states_found = {}
     _real_buckets = {}
 
-    def fetch_real_resources(self, region):
+    regional_resource = False
+
+    def fetch_real_global_resources(self):
         logging.info("Looking for s3 resources")
 
-        client = self._get_client('s3', region)
+        client = self._get_client('s3', None)
 
         response = client.list_buckets()
 

@@ -15,7 +15,7 @@ class AWSDBInstance(AWSResource):
     _instances_in_aws = {}
     _instances_in_state = {}
 
-    def fetch_real_resources(self, region):
+    def fetch_real_regional_resources(self, region):
         logger.info("Looking for RDS resources")
 
         client = self._get_client("rds", region)

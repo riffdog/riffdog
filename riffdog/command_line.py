@@ -54,7 +54,8 @@ def main(*args):
     parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--region', help="AWS regions to use", action='append')
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
-    parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append')
+    parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
+
 
     # Parse args.
     parsed_args = parser.parse_args()

@@ -59,7 +59,7 @@ def scan(config):
 
         for region in config.regions:
             found[scan_element].fetch_real_resources(region)
-
+            
         # now compare
         report[scan_element] = found[scan_element].compare(config, None)  # FIME - set depth
 
