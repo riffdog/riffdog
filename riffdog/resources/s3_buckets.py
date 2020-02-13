@@ -36,7 +36,14 @@ class S3Buckets(AWSResource):
         out_report = ReportElement()
 
         for key, val in self._states_found.items():
-            if key not in self._real_buckets:
+            # This could probably be improved somewhat and it doesn't really take into account if there's more than
+            # one instance here. I would assume there wouldn't be, but who knows?
+            try:
+                real_bucket_name = val['instances'][0]['attributes']['bucket']
+            except (KeyError, IndexError):
+                real_bucket_name = key
+
+            if real_bucket_name not in self._real_buckets:
                 out_report.in_tf_but_not_real.append(key)
             else:
                 out_report.matched.append(key)
