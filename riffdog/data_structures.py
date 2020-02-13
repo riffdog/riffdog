@@ -24,25 +24,33 @@ class RDConfig():
     RiffDog Config Object for controlling the scan.
     """
 
-    scan_mode = ScanMode.LIGHT
+    class __RDConfig:
+        scan_mode = ScanMode.LIGHT
 
-    state_storage = StateStorage.AWS_S3
-    state_file_locations = []
-    regions = []
-    excluded_resources = []
+        state_storage = StateStorage.AWS_S3
+        state_file_locations = []
+        regions = []
+        excluded_resources = []
 
-    base_elements_to_scan = [
-        'aws_instance',
-        'aws_s3_bucket',
-        'aws_rds_cluster',
-        'aws_rds_cluster_instance',
-        'aws_rds_cluster_parameter_group',
-        'aws_db_instance',
-    ]
+        base_elements_to_scan = []
 
-    @property
-    def elements_to_scan(self):
-        return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
+        @property
+        def elements_to_scan(self):
+            return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
+
+            
+    instance = None
+
+    def __new__(cls): # __new__ always a classmethod
+        if not RDConfig.instance:
+            RDConfig.instance = RDConfig.__RDConfig()
+        return RDConfig.instance
+
+    def __getattr__(self, name):
+        return getattr(self.instance, name)
+
+    def __setattr__(self, name):
+        return setattr(self.instance, name)
 
 
 class ReportElement():

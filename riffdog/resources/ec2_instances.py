@@ -18,7 +18,7 @@ class InstanceResource(AWSResource):
     _states_found = {}
     _real_servers = {}
 
-    def fetch_real_resources(self, region):
+    def fetch_real_regional_resources(self, region):
         client = self._get_client('ec2', region)
     
         instances = client.describe_instances()

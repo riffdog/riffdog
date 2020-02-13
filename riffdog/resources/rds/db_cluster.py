@@ -15,7 +15,7 @@ class AWSRDSCluster(AWSResource):
     _clusters_in_aws = {}
     _clusters_in_state = {}
 
-    def fetch_real_resources(self, region):
+    def fetch_real_regional_resources(self, region):
         logging.info("Looking for RDS resources")
 
         client = self._get_client("rds", region)
@@ -54,7 +54,7 @@ class AWSRDSClusterInstance(AWSResource):
     _instances_in_aws = {}
     _instances_in_state = {}
 
-    def fetch_real_resources(self, region):
+    def fetch_real_regional_resources(self, region):
         logging.info("Looking for RDS resources")
 
         client = self._get_client("rds", region)

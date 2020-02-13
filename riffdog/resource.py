@@ -3,6 +3,8 @@ import logging
 
 import boto3
 
+from .data_structures import RDConfig
+
 logger = logging.getLogger(__name__)
 
 
@@ -53,6 +55,8 @@ def register(resource_name):
 
         rd = ResourceDirectory()
         rd.add(resource_name, wrapper)
+        
+        RDConfig().base_elements_to_scan.append(resource_name)
 
         return wrapper
     return actual_decorator
@@ -64,7 +68,7 @@ class Resource():
     """
 
 
-    def fetch_real_resources(self, region):
+    def fetch_real_resources(self):
         # This may be called multiple times for each region in the scan list
         # i.e. append
         raise NotImplementedError()
@@ -87,6 +91,24 @@ class AWSResource(Resource):
     Middle Inheritance to handle getting the correct client & resource objects
     """
 
+    # set this to False if this class is a Global resource (e.g. s3)
+    regional_resource = True
+
+    def fetch_real_resources(self):
+        
+        if self.regional_resource:
+            for region in RDConfig().regions:
+                self.fetch_real_regional_resources(region)
+        else:
+            self.fetch_real_global_resources()
+
+    def fetch_real_regional_resources(self, region):
+        raise NotImplemented()
+
+    
+    def fetch_real_global_resources(self):
+        raise NotImplemented()
+    
 
     def _get_client(self, aws_client_type, region):
 
