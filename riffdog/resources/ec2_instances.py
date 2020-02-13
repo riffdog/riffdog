@@ -104,13 +104,13 @@ class InstanceResource(AWSResource):
 
         for key, val in self._states_found.items():
             if key not in self._real_servers:
-                out_report.in_tf_but_not_aws.append(key)
+                out_report.in_tf_but_not_real.append(key)
             else:
                 out_report.matched.append(key)
 
         for key, val in  self._real_servers.items():
             if key not in self._states_found:
-                out_report.in_aws_but_not_tf.append(key)
+                out_report.in_real_but_not_tf.append(key)
 
         return out_report
 

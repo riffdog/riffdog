@@ -42,10 +42,10 @@ class ReportElement():
     """
 
     matched = None
-    in_tf_but_not_aws = None
-    in_aws_but_not_tf = None
+    in_tf_but_not_real = None
+    in_real_but_not_tf = None
 
     def __init__(self):
         self.matched = []
-        self.in_tf_but_not_aws = []
-        self.in_aws_but_not_tf = []
+        self.in_tf_but_not_real = []
+        self.in_real_but_not_tf = []
