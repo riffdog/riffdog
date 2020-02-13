@@ -4,9 +4,8 @@ This module is for EC2 instance processing - terraform & boto and comparison.
 
 import logging
 
-from ..utils import _get_client, _get_resource
 from ..data_structures import ReportElement
-from ..resource import Resource, register
+from ..resource import AWSResource, register
 
 logger = logging.getLogger(__name__)
 
@@ -14,20 +13,19 @@ logger = logging.getLogger(__name__)
 # FIXME: this should be def InstanceResource(Resource) but it messes the dynamic loading 
 
 @register("aws_instance")
-class InstanceResource(Resource):
-
+class InstanceResource(AWSResource):
 
     _states_found = {}
     _real_servers = {}
 
     def fetch_real_resources(self, region):
-        client = _get_client('ec2', region)
+        client = self._get_client('ec2', region)
     
         instances = client.describe_instances()
 
         if instances:
             if(len(instances["Reservations"]) > 0):
-                ec2 = _get_resource('ec2', region)
+                ec2 = self._get_resource('ec2', region)
                 vpcs = client.describe_vpcs()
 
             for reservation in instances["Reservations"]:

@@ -3,15 +3,13 @@ This module is for EC2 instance processing - terraform & boto and comparison.
 """
 
 import logging
-
-from ..utils import _get_client, _get_resource
 from ..data_structures import ReportElement
-from ..resource import Resource, register
+from ..resource import AWSResource, register
 
 logger = logging.getLogger(__name__)
 
 @register("aws_s3_bucket")
-class S3Buckets(Resource):
+class S3Buckets(AWSResource):
     _states_found = {}
     _real_buckets = {}
 
@@ -19,7 +17,7 @@ class S3Buckets(Resource):
     def fetch_real_resources(self, region):
         logging.info("Looking for s3 resources")
 
-        client = _get_client('s3', region)
+        client = self._get_client('s3', region)
 
         response = client.list_buckets()
 
