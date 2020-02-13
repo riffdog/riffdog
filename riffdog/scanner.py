@@ -87,8 +87,9 @@ def _s3_state_fetch(bucket_name):
     found = {}
 
     for item in items['Contents']:
-        if item['Key'].endswith("terraform.tfstate"):
-            found = _search_state(bucket_name, item['Key'], s3, found)
+        #if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
+        logging.info("Inspecting s3 item: %s" % item['Key'])
+        found = _search_state(bucket_name, item['Key'], s3, found)
 
     # instances
     return found
@@ -97,11 +98,11 @@ def _s3_state_fetch(bucket_name):
 def _search_state(bucket_name, key, s3, found):
     obj = s3.Object(bucket_name, key)
     content = obj.get()['Body'].read()
-    parsed = json.loads(content)
-    from .resource import Resource
-
+    rd = ResourceDirectory()
+        
     try:
-        rd = ResourceDirectory()
+        parsed = json.loads(content)
+
         for res in parsed['resources']:
             if res['type'] in found:
                 # its already loaded!
@@ -117,7 +118,7 @@ def _search_state(bucket_name, key, s3, found):
                     logging.debug("Unsupported resource %s" % res['type'])
 
 
-    except Exception as e:
+    except Exception as e: # FIXME: tighten this up could be - file not Json issue, permission of s3 etc, as well as the terraform state version has changed
         logger.info(e)
         logger.warning("Bad Terraform file: %s (perhaps a TF/state version issue?) %s" % (key, type(e)))
         pass
