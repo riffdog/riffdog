@@ -79,6 +79,12 @@ setup(
         "boto3>=1.11.14",
         "tabulate>=0.8.6"
     ],
+
+    extras_require={
+    #    "aws":  ["riffdog_aws"], 
+    #    "reST": ["riffdog_cloudflare"],
+    },
+
     entry_points={
         'console_scripts': ['riffdog=riffdog.command_line:main'],
     }
