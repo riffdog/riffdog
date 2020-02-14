@@ -1,10 +1,10 @@
 # riffdog
-Riffdog Terraform / AWS scanner - finding 'things' in AWS which Terraform didn't
-put there.
+Riffdog Terraform / Reality scanner - finding 'things' in the Real World which 
+Terraform didn't put there.
 
 This project works by firstly loading your terraform state files - *not* your
 terraform files, and building a memory object that represents what terraform 
-*thinks* it has deployed. The second step is then to access your AWS environment
+*thinks* it has deployed. The second step is then to access your environment
 and actually look what *is* there, and it builds another memory object.
 
 Then it compares the two, and looks for:
@@ -12,14 +12,16 @@ Then it compares the two, and looks for:
 * Things that TF put there, but arn't there
 * Things that are there, that TF doesn't know about
 
+For this to work, you *must* install a resouce pack, for instance `riffdog_aws`
+
 ## Command line vs Library
 
 Riffdog is both a command line tool and a python library. The command line tool
 basically creates a config object and calls the scan method.
 
-To install:
+To install (for example with the AWS resources)
 
-`$ pip install riffdog`
+`$ pip install riffdog[aws]`
 
 To run:
 

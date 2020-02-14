@@ -18,9 +18,9 @@ setup(
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
 
-    version='0.0.0-alpha-3',
+    version='0.0.1',
 
-    description='Terraform - Reality Scanner (comparing what Terraform thought it',
+    description='Terraform - Reality Scanner',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
@@ -40,7 +40,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -81,7 +81,7 @@ setup(
     ],
 
     extras_require={
-    #    "aws":  ["riffdog_aws"], 
+         "aws":  ["riffdog_aws"], 
     #    "reST": ["riffdog_cloudflare"],
     },
 
