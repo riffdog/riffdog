@@ -29,7 +29,8 @@ class ResourceDirectory(object):
                 return self.found_resources[key]
             else:
                 if key in self.resource_aliases:
-                    return self.found_resources[key]
+                    real_key = self.resource_aliases[key]
+                    return self.found_resources[real_key]
                 else:
                     return None
 
