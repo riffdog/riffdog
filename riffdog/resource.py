@@ -13,6 +13,7 @@ class ResourceDirectory(object):
 
     class __ResourceDirectory:
         found_resources = {}
+        resource_aliases = {} 
 
         def __init__(self):
             self.found_resources = {}
@@ -29,6 +30,9 @@ class ResourceDirectory(object):
             else:
                 return None
 
+        def add_alias(self, key, alias):
+            self.resource_aliases[alias] = key
+
     instance = None
 
     def __new__(cls):  # __new__ always a classmethod
@@ -43,18 +47,26 @@ class ResourceDirectory(object):
         return setattr(self.instance, name)
 
 
-def register(resource_name):
+def register(*args):
 
     def actual_decorator(constructor):
-        logger.info("resource tagged %s - %s " % (resource_name, constructor))
+        resource_name, *aliases = args
+        logger.info("Resource tagged {name} ({aliases}) - {constructor}".format(
+            name=resource_name,
+            aliases=", ".join(a for a in aliases),
+            constructor=constructor))
 
         @functools.wraps(constructor)
         def wrapper(*args, **kwargs):
             return constructor(*args, **kwargs)
 
         rd = ResourceDirectory()
+
         rd.add(resource_name, wrapper)
-        
+        if aliases:
+            for alias in aliases:
+                rd.add_alias(resource_name, alias)
+
         RDConfig().base_elements_to_scan.append(resource_name)
 
         return wrapper
