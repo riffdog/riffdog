@@ -28,7 +28,10 @@ class ResourceDirectory(object):
             if key in self.found_resources:
                 return self.found_resources[key]
             else:
-                return None
+                if key in self.resource_aliases:
+                    return self.found_resources[key]
+                else:
+                    return None
 
         def add_alias(self, key, alias):
             self.resource_aliases[alias] = key
