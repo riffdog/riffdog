@@ -7,13 +7,13 @@ from importlib import import_module
 
 import boto3
 
-from .data_structures import StateStorage
+from .data_structures import RDConfig, StateStorage
 from .resource import ResourceDirectory
 
 logger = logging.getLogger(__name__)
 
 
-def scan(config):
+def scan():
     # in this initial version, lets make some assumptions about things and then
     # fix those later - specificlly like state files will be in an s3 bucket.
 
@@ -23,29 +23,12 @@ def scan(config):
     # Future JT will hate past JT for these assumptions.
 
     # Build scan map:
+    config = RDConfig()
     rd = ResourceDirectory()
 
+    _load_resource_modules()
+
     # Scan current repo
-
-    for (_, name, is_package) in pkgutil.walk_packages([os.path.join(os.path.dirname(__file__), "resources")]):
-        if is_package:
-            package_name = name
-            for (_, name, _) in pkgutil.iter_modules(
-                    [os.path.join(os.path.dirname(__file__), "resources", package_name)]):
-                import_module('riffdog.resources.%s.%s' % (package_name, name))
-        else:
-            for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "resources")]):
-                import_module('riffdog.resources.%s' % name)
-
-    # attempt to scan other projects
-    logger.info("Looking for external modules")
-    for project in config.external_resource_libs:
-        try:
-            imported = import_module("%s.register" % project)
-            imported.register_resources()
-        except Exception as e:
-            logger.info(e)
-            logger.info("Exception loading %s - might not be installed" % project)
 
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.
@@ -79,6 +62,32 @@ def scan(config):
 
     logger.info("Scan Complete")
     return report
+
+
+def _load_resource_modules():
+
+    config = RDConfig()
+
+    for (_, name, is_package) in pkgutil.walk_packages([os.path.join(os.path.dirname(__file__), "resources")]):
+        if is_package:
+            package_name = name
+            for (_, name, _) in pkgutil.iter_modules(
+                    [os.path.join(os.path.dirname(__file__), "resources", package_name)]):
+                import_module('riffdog.resources.%s.%s' % (package_name, name))
+        else:
+            for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "resources")]):
+                import_module('riffdog.resources.%s' % name)
+
+    # attempt to scan other projects
+    logger.info("Looking for external modules")
+    for project in config.external_resource_libs:
+        try:
+            imported = import_module("%s.register" % project)
+            imported.register_resources()
+        except Exception as e:
+            #logger.info(e)
+            logger.info("Exception loading %s - might not be installed, or errors on load" % project)
+
 
 def _real_scan_element(scan_element, scanned, scanning):
     # FIXME: this is recursive - change to a loop at some point
