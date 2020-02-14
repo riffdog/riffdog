@@ -77,6 +77,7 @@ Automated testing of this system is quite difficult. Ultimatly these are here to
 
 # Version History
 
-* _0.0.0a1_ 12th Feb 2020 Alpha releases to get basic framework availible and running for some use cases.
-* _0.0.0a2_ 13th Feb 2020 Update to framework, output formatting and config fixes.
-* _0.0.0a3_ 14th Feb 2020 Large change to the base loaders, interface of modules, and addition of several key scanners
+* _0.0.0a1_ 11th Feb 2020 Alpha releases to get basic framework availible and running for some use cases.
+* _0.0.0a2_ 12th Feb 2020 Update to framework, output formatting and config fixes.
+* _0.0.0a3_ 13th Feb 2020 Large change to the base loaders, interface of modules, and addition of several key scanners
+* _0.0.1_ 14th Feb 2020 - First Beta release with modular approach. Issues & AWS split into second repository.
