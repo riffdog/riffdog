@@ -33,7 +33,7 @@ class ResourceDirectory(object):
             if key in self.resource_instances:
                 return self.resource_instances[key]
             else:
-                if key in self.resource_aliases and self.resource_aliases[key] in self.resource_instances[key] in self.resource_instances:
+                if key in self.resource_aliases and self.resource_aliases[key] in self.resource_instances:
                     return self.resource_instances[self.resource_aliases[key]]
             
             # if got this far, its not an instance, so try to make one
@@ -97,6 +97,8 @@ class Resource:
     """
     Base Resource Class
     """
+
+    depends_on = []
 
     def fetch_real_resources(self):
         # This may be called multiple times for each region in the scan list

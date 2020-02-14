@@ -20,12 +20,12 @@ setup(
 
     version='0.0.0-alpha-3',
 
-    description='Terraform - AWS Scanner',
+    description='Terraform - Reality Scanner (comparing what Terraform thought it',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/jmons/riffdog',
+    url='https://github.com/riffdog/riffdog',
 
     # Author details
     author='James Taylor',
@@ -79,6 +79,12 @@ setup(
         "boto3>=1.11.14",
         "tabulate>=0.8.6"
     ],
+
+    extras_require={
+    #    "aws":  ["riffdog_aws"], 
+    #    "reST": ["riffdog_cloudflare"],
+    },
+
     entry_points={
         'console_scripts': ['riffdog=riffdog.command_line:main'],
     }

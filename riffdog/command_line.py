@@ -55,6 +55,7 @@ def main(*args):
     parser.add_argument('--region', help="AWS regions to use", action='append')
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
+    parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
 
 
     # Parse args.
@@ -82,6 +83,7 @@ def main(*args):
     config.state_storage = StateStorage.AWS_S3
     config.regions = get_regions(parsed_args.region)
     config.excluded_resources = parsed_args.exclude_resource
+    config.external_resource_libs += parsed_args.include
 
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
@@ -92,7 +94,7 @@ def main(*args):
         return
 
     # 3. Start scans
-    results = scan(config)
+    results = scan()
 
     if parsed_args.json:
         print(dumps(results, cls=ReportEncoder))

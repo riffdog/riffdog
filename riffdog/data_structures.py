@@ -35,6 +35,12 @@ class RDConfig:
 
         base_elements_to_scan = []
 
+        # This is a list of the core repositories. It can be added to with command options
+        external_resource_libs = [
+            'riffdog_aws',
+            'riffdog_cloudflare'
+        ]
+
         @property
         def elements_to_scan(self):
             return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
