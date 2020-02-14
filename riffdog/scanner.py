@@ -25,6 +25,8 @@ def scan(config):
     # Build scan map:
     rd = ResourceDirectory()
 
+    # Scan current repo
+
     for (_, name, is_package) in pkgutil.walk_packages([os.path.join(os.path.dirname(__file__), "resources")]):
         if is_package:
             package_name = name
@@ -34,6 +36,17 @@ def scan(config):
         else:
             for (_, name, _) in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "resources")]):
                 import_module('riffdog.resources.%s' % name)
+
+    # attempt to scan other projects
+    logger.info("Looking for external modules")
+    for project in config.external_resource_libs:
+        try:
+            #imported = import_module("%s.register" % project)
+            imported = import_module("%s.register" % project)
+            imported.register_resources()
+        except Exception as e:
+            logger.info(e)
+            logger.info("Exception loading %s - might not be installed" % project)
 
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.

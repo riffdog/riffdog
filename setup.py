@@ -20,12 +20,12 @@ setup(
 
     version='0.0.0-alpha-3',
 
-    description='Terraform - AWS Scanner',
+    description='Terraform - Reality Scanner (comparing what Terraform thought it',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/jmons/riffdog',
+    url='https://github.com/riffdog/riffdog',
 
     # Author details
     author='James Taylor',
