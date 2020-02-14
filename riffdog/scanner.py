@@ -97,7 +97,7 @@ def _real_scan_element(scan_element, scanned, scanning):
 
     element = rd.lookup(scan_element)
     if element:
-        for required_element in element.dependancies:
+        for required_element in element.depends_on:
             if required_element not in scanned:
                 scanned = _real_scan_element(required_element, scanned, scanning)
 
@@ -123,7 +123,7 @@ def _compare_element(scan_element, compared, comparing, report):
 
     element = rd.lookup(scan_element)
     if element:
-        for required_element in element.dependancies:
+        for required_element in element.depends_on:
             if required_element not in compared:
                 compared, report = _compare_element(required_element, compared, comparing, report)
 
