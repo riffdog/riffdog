@@ -88,9 +88,10 @@ class InstanceResource(AWSResource):
             instance['state_filename'] = state_filename
             self._states_found[instance['attributes']['id']] = instance
 
-    def compare(self, config, depth):
+    def compare(self, depth):
         # this function should be called once, take the local data and return
         # an array of result elements.
+
         out_report = ReportElement()
 
         for key, val in self._states_found.items():

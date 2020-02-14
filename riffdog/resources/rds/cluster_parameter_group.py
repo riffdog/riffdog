@@ -29,7 +29,7 @@ class AWSRDSClusterParameterGroup(AWSResource):
         for instance in state_resource["instances"]:
             self._cluster_pgs_in_state[instance["attributes"]["cluster_identifier"]] = instance
 
-    def compare(self, config, depth):
+    def compare(self, depth):
         out_report = ReportElement()
 
         for key, val in self._cluster_pgs_in_state.items():

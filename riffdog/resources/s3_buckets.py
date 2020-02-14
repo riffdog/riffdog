@@ -29,7 +29,7 @@ class S3Buckets(AWSResource):
     def process_state_resource(self, state_resource, state_filename):
         self._states_found[state_resource['name']] = state_resource
 
-    def compare(self, config, depth):
+    def compare(self, depth):
         # this function should be called once, take the local data and return
         # an array of result elements.
         out_report = ReportElement()

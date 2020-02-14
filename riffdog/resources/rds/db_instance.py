@@ -29,7 +29,7 @@ class AWSDBInstance(AWSResource):
         for instance in state_resource["instances"]:
             self._instances_in_state[instance["attributes"]["id"]] = instance
 
-    def compare(self, config, depth):
+    def compare(self, depth):
         out_report = ReportElement()
 
         for key, val in self._instances_in_state.items():

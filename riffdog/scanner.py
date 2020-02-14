@@ -49,24 +49,75 @@ def scan(config):
 
     report = {}
 
-    for scan_element in config.elements_to_scan:
-        logger.info("Now inspecting %s" % scan_element)
+    scanned_elements = []
 
-        element = rd.lookup(scan_element)
-        if element:
-            element.fetch_real_resources()
+    for scan_element in config.elements_to_scan:
+        scanning_elements = []
+        scanned_elements = _real_scan_element(scan_element, scanned_elements, scanning_elements)
             
     # now compare
+    
+    compared_elements = []
 
     for scan_element in config.elements_to_scan:
+        comparing_elements = []
         logger.info("Now comparing %s" % scan_element)
 
-        element = rd.lookup(scan_element)
-        if element:
-            report[scan_element] = element.compare(config, None)  # FIME - set depth
+        compared_elements, report = _compare_element(scan_element, compared_elements, comparing_elements, report)
 
     logger.info("Scan Complete")
     return report
+
+def _real_scan_element(scan_element, scanned, scanning):
+    # FIXME: this is recursive - change to a loop at some point
+
+    rd = ResourceDirectory()
+
+    if scan_element in scanned:
+        # its allready run, return
+        return scanned
+
+    if scan_element in scanning:
+        raise Exception("Circular dependency found - code error in dependancy tree")
+
+    scanning.append(scan_element)
+
+    element = rd.lookup(scan_element)
+    if element:
+        for required_element in element.dependancies:
+            if required_element not in scanned:
+                scanned = _real_scan_element(required_element, scanned, scanning)
+
+        element.fetch_real_resources()
+
+    scanned.append(scan_element)
+    return scanned
+
+
+def _compare_element(scan_element, compared, comparing, report):
+    # FIXME: this is recursive - change to a loop at some point
+
+    rd = ResourceDirectory()
+
+    if scan_element in compared:
+        # its allready run, return
+        return compared, report
+
+    if scan_element in comparing:
+        raise Exception("Circular dependency found - code error in dependancy tree")
+
+    comparing.append(scan_element)
+
+    element = rd.lookup(scan_element)
+    if element:
+        for required_element in element.dependancies:
+            if required_element not in compared:
+                compared, report = _compare_element(required_element, compared, comparing, report)
+
+        report[scan_element] = element.compare(depth=None) # FIXME - depth calculation
+
+    compared.append(scan_element)
+    return compared, report
 
 
 def _s3_state_fetch(bucket_name):

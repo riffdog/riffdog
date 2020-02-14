@@ -29,7 +29,7 @@ class AWSRDSCluster(AWSResource):
         for instance in state_resource["instances"]:
             self._clusters_in_state[instance["attributes"]["cluster_identifier"]] = instance
 
-    def compare(self, config, depth):
+    def compare(self, depth):
         out_report = ReportElement()
 
         for key, val in self._clusters_in_state.items():
@@ -70,7 +70,7 @@ class AWSRDSClusterInstance(AWSResource):
         for instance in state_resource["instances"]:
             self._instances_in_state[instance["attributes"]["identifier"]] = instance
 
-    def compare(self, config, depth):
+    def compare(self, depth):
         out_report = ReportElement()
 
         for key, val in self._instances_in_state.items():
