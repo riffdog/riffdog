@@ -12,7 +12,10 @@ class ResourceDirectory(object):
     # This is the resource directory singleton. There can be only one.
 
     class __ResourceDirectory:
-        found_resources = {}
+        found_resources = {}    # this is a dictionary of class instantiators
+        resource_aliases = {}   # this is a dictionary aliases to above
+
+        resource_instances = {} # this is a dictionary of actual instances
 
         def __init__(self):
             self.found_resources = {}
@@ -24,10 +27,31 @@ class ResourceDirectory(object):
             self.found_resources[key] = target_type
 
         def lookup(self, key):
-            if key in self.found_resources:
-                return self.found_resources[key]
+
+            # Warning: multiple return paths in this function
+
+            if key in self.resource_instances:
+                return self.resource_instances[key]
             else:
+                if key in self.resource_aliases and self.resource_aliases[key] in self.resource_instances[key] in self.resource_instances:
+                    return self.resource_instances[self.resource_aliases[key]]
+            
+            # if got this far, its not an instance, so try to make one
+
+            if key in self.found_resources:
+                instance = self.found_resources[key]()
+                self.resource_instances[key] = instance
+                return instance
+            elif key in self.resource_aliases:
+                instance = self.found_resources[self.resource_aliases[key]]()
+                self.resource_instances[key] = instance
+                return instance
+            else:
+                # Not in the mapping or as an alias :. not scanned
                 return None
+
+        def add_alias(self, key, alias):
+            self.resource_aliases[alias] = key
 
     instance = None
 
@@ -43,18 +67,26 @@ class ResourceDirectory(object):
         return setattr(self.instance, name)
 
 
-def register(resource_name):
+def register(*args):
 
     def actual_decorator(constructor):
-        logger.info("resource tagged %s - %s " % (resource_name, constructor))
+        resource_name, *aliases = args
+        logger.info("Resource tagged {name} ({aliases}) - {constructor}".format(
+            name=resource_name,
+            aliases=", ".join(a for a in aliases),
+            constructor=constructor))
 
         @functools.wraps(constructor)
         def wrapper(*args, **kwargs):
             return constructor(*args, **kwargs)
 
         rd = ResourceDirectory()
+
         rd.add(resource_name, wrapper)
-        
+        if aliases:
+            for alias in aliases:
+                rd.add_alias(resource_name, alias)
+
         RDConfig().base_elements_to_scan.append(resource_name)
 
         return wrapper
