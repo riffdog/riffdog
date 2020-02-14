@@ -41,7 +41,6 @@ def scan(config):
     logger.info("Looking for external modules")
     for project in config.external_resource_libs:
         try:
-            #imported = import_module("%s.register" % project)
             imported = import_module("%s.register" % project)
             imported.register_resources()
         except Exception as e:
@@ -174,4 +173,3 @@ def _search_state(bucket_name, key, s3):
         logger.info(e)
         logger.warning("Bad Terraform file: %s (perhaps a TF/state version issue?) %s" % (key, type(e)))
         pass
-
