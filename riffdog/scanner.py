@@ -55,7 +55,14 @@ def scan(config):
         element = rd.lookup(scan_element)
         if element:
             element.fetch_real_resources()
-            # now compare
+            
+    # now compare
+
+    for scan_element in config.elements_to_scan:
+        logger.info("Now comparing %s" % scan_element)
+
+        element = rd.lookup(scan_element)
+        if element:
             report[scan_element] = element.compare(config, None)  # FIME - set depth
 
     logger.info("Scan Complete")
