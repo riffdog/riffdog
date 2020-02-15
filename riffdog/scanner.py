@@ -1,5 +1,6 @@
 import logging
 import json
+import sys
 
 import os
 import pkgutil
@@ -11,6 +12,7 @@ from .data_structures import RDConfig, StateStorage
 from .resource import ResourceDirectory
 
 logger = logging.getLogger(__name__)
+NO_FOUND_RESOURCES_ERROR = "No resource modules found. Please pip install riffdog_aws/riffdog_cloudflare"
 
 
 def scan():
@@ -28,7 +30,9 @@ def scan():
 
     _load_resource_modules()
 
-    # Scan current repo
+    if not rd.found_resources:
+        print(NO_FOUND_RESOURCES_ERROR)
+        sys.exit(0)
 
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.
@@ -152,12 +156,10 @@ def _s3_state_fetch(bucket_name):
 
     items = client.list_objects(Bucket=bucket_name, Prefix="")
 
-
-    for item in items['Contents']:
+    for item in items.get('Contents', []):
         # if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
         logging.info("Inspecting s3 item: %s" % item['Key'])
         _search_state(bucket_name, item['Key'], s3)
-
 
 
 def _search_state(bucket_name, key, s3):
@@ -174,7 +176,6 @@ def _search_state(bucket_name, key, s3):
                 element.process_state_resource(res, key)
             else:
                 logging.debug("Unsupported resource %s" % res['type'])
-           
 
     except Exception as e:
         # FIXME: tighten this up could be - file not Json issue, permission of s3 etc, as well as the terraform state
