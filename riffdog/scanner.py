@@ -9,7 +9,10 @@ import boto3
 
 from .data_structures import RDConfig, StateStorage
 from .resource import ResourceDirectory
+from .exceptions import ResourceNotFoundError, StorageNotImplemented
 
+NO_FOUND_RESOURCES_ERROR = "No resource modules found. Please pip install riffdog_aws/riffdog_cloudflare"
+STORAGE_NOT_IMPLEMENTED_ERROR = "State storage not implemented yet"
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +31,8 @@ def scan():
 
     _load_resource_modules()
 
-    # Scan current repo
+    if not rd.found_resources:
+        raise ResourceNotFoundError(NO_FOUND_RESOURCES_ERROR)
 
 
     if config.state_storage == StateStorage.AWS_S3:
@@ -38,7 +42,7 @@ def scan():
             logger.info("Inspecting %s" % state_folder)
             _s3_state_fetch(state_folder)
     else:
-        raise NotImplementedError("State storage not implemented yet")
+        raise StorageNotImplemented(STORAGE_NOT_IMPLEMENTED_ERROR)
 
     # Extract items of interest from States:
     logger.info("Now Looking at AWS (via Boto)")
@@ -153,12 +157,10 @@ def _s3_state_fetch(bucket_name):
 
     items = client.list_objects(Bucket=bucket_name, Prefix="")
 
-
-    for item in items['Contents']:
+    for item in items.get('Contents', []):
         # if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
         logging.info("Inspecting s3 item: %s" % item['Key'])
         _search_state(bucket_name, item['Key'], s3)
-
 
 
 def _search_state(bucket_name, key, s3):
@@ -175,7 +177,6 @@ def _search_state(bucket_name, key, s3):
                 element.process_state_resource(res, key)
             else:
                 logging.debug("Unsupported resource %s" % res['type'])
-           
 
     except Exception as e:
         # FIXME: tighten this up could be - file not Json issue, permission of s3 etc, as well as the terraform state
