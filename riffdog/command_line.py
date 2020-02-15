@@ -1,6 +1,7 @@
 import logging
 import os
 import argparse
+import sys
 
 from json import dumps, JSONEncoder
 
@@ -8,6 +9,7 @@ from tabulate import tabulate
 
 from .scanner import scan
 from .data_structures import RDConfig, StateStorage, ReportElement
+from .exceptions import RiffDogException
 
 logger = logging.getLogger(__name__)
 DEFAULT_REGION = 'us-east-1'
@@ -90,11 +92,18 @@ def main(*args):
 
     # If there are no statefiles, quit early.
     if len(config.state_file_locations) == 0:
-        print("No state file locations given - stopping scan early - run `riffdog -h`  for help")
-        return
+        print("No state file locations given - stopping scan early - run `riffdog -h`  for help", file=sys.stderr)
+        sys.exit(0)
 
     # 3. Start scans
-    results = scan()
+    try:
+        results = scan()
+    except RiffDogException as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(0)
+    except Exception as exc:
+        print("Unexpected exception: {}".format(str(exc)), file=sys.stderr)
+        sys.exit(1)
 
     if parsed_args.json:
         print(dumps(results, cls=ReportEncoder))

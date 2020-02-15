@@ -1,6 +1,5 @@
 import logging
 import json
-import sys
 
 import os
 import pkgutil
@@ -10,9 +9,11 @@ import boto3
 
 from .data_structures import RDConfig, StateStorage
 from .resource import ResourceDirectory
+from .exceptions import ResourceNotFoundError, StorageNotImplemented
 
-logger = logging.getLogger(__name__)
 NO_FOUND_RESOURCES_ERROR = "No resource modules found. Please pip install riffdog_aws/riffdog_cloudflare"
+STORAGE_NOT_IMPLEMENTED_ERROR = "State storage not implemented yet"
+logger = logging.getLogger(__name__)
 
 
 def scan():
@@ -31,8 +32,7 @@ def scan():
     _load_resource_modules()
 
     if not rd.found_resources:
-        print(NO_FOUND_RESOURCES_ERROR)
-        sys.exit(0)
+        raise ResourceNotFoundError(NO_FOUND_RESOURCES_ERROR)
 
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.
@@ -41,7 +41,7 @@ def scan():
             logger.info("Inspecting %s" % state_folder)
             _s3_state_fetch(state_folder)
     else:
-        raise NotImplementedError("State storage not implemented yet")
+        raise StorageNotImplemented(STORAGE_NOT_IMPLEMENTED_ERROR)
 
     # Extract items of interest from States:
     logger.info("Now Looking at AWS (via Boto)")
