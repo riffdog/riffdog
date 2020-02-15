@@ -27,6 +27,8 @@ To run:
 
 `$ riffdog -b bucketname_containing_states` 
 
+For full command line reference, please see the docs #FIXME - link to docs!
+
 ## Light vs Full Scan mode
 
 AWS and Terraform are very complex: for instance, a EC2 instance is a computer,
@@ -51,33 +53,10 @@ please feel free to add a module. If you need help, please contact us or file
 a ticket.
 
 
-# Command Line Reference
-
-FIXME: write full command line reference
-
-## Config File Reference
-
-FIXME: write full config file reference
-
-# Library Reference
-
-FIXME: write full library reference
-
-# Development 
-
-Suggested development in a virtualenv, `pip install -e .`
 
 ## Testing
 
 Automated testing of this system is quite difficult. Ultimatly these are here to make sure that changes to internal data structures do not break other functions (e.g. some data objects such as network interfaces are used by multiple features: both EC2 instances and Lambdas). The real test is whether it works against the current Terraform and AWS API's, not a snapshot from previous years.
 
 * Tests go into the tests folder, 
-* using Nose as the tool to run them
 * Tox is used to make sure compatibility with various versions of python & libraries
-
-# Version History
-
-* _0.0.0a1_ 11th Feb 2020 Alpha releases to get basic framework availible and running for some use cases.
-* _0.0.0a2_ 12th Feb 2020 Update to framework, output formatting and config fixes.
-* _0.0.0a3_ 13th Feb 2020 Large change to the base loaders, interface of modules, and addition of several key scanners
-* _0.0.1_ 14th Feb 2020 - First Beta release with modular approach. Issues & AWS split into second repository.

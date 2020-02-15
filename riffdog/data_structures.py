@@ -66,8 +66,19 @@ class ReportElement:
     """
 
     matched = None
+    """
+    An array of items that were present in both Terraform and Real
+    """
+
     in_tf_but_not_real = None
+    """
+    An array of items that Terraform thought should be there, but could not be found
+    """
+
     in_real_but_not_tf = None
+    """
+    An array of items that are there, but were not in the Terraform state files
+    """
 
     def __init__(self):
         self.matched = []

@@ -30,6 +30,7 @@ def scan():
 
     # Scan current repo
 
+
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.
         # Message me if you do this. Because I'm interested as to why
