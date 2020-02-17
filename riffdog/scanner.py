@@ -34,6 +34,7 @@ def scan():
     if not rd.found_resources:
         raise ResourceNotFoundError(NO_FOUND_RESOURCES_ERROR)
 
+
     if config.state_storage == StateStorage.AWS_S3:
         # Note we don't support mix & match state locations.
         # Message me if you do this. Because I'm interested as to why

@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class ResourceDirectory(object):
+    """
+    This is the primary storage of resource mapping.
+    """
     # This is the resource directory singleton. There can be only one.
 
     class __ResourceDirectory:
@@ -95,24 +98,48 @@ def register(*args):
 
 class Resource:
     """
-    Base Resource Class
+    Base Resource Class - resources should inherit this and implement *all* of the
+    functions in it - or they should implemented with a middle-layer that handles
+    things like access control for the 'real' component of the resource.
+
+    If a module does not implement one of these functions, then the scanner may halt
+    execution.
+
+    Order of execution of the framework is:
+
+    * Scan step - the scanner will scan the state, and each state that matches either the primary, or aliased key will then call :py:func:`process_state_resource`. The order of module execution here is related to the order they are in the state files, and the order of state files that were scanned (i.e. alphabetically inside the folder, and in order that the state_folders was given in the scan config).
+    * Gather 'real' items step. The scanner will then call :py:func:`fetch_real_resources` once. If the module has filled out any :py:data:`depends_on`, then it will call :py:func:`fetch_real_resources` on those modules *before* calling this function. This allows developers to pull related 'child' objects before trying to pull parents, improving optimisation and stopping duplicate pull requests.
+    * Once all 'real' fetches have finished, then the scanner will call :py:func:`compare` on each module once. Again, if :py:data:`depends_on` has any values, then these modules are called prior to this instance.
+
     """
 
-    depends_on = []
+    depends_on = [] 
+    """
+    This is an array of object references used to control the fetch_real_resources
+    and compare functions. 
+    
+    i.e. depends_on = [Foo] where Foo is a class reference.
+    """
 
     def fetch_real_resources(self):
-        # This may be called multiple times for each region in the scan list
-        # i.e. append
+        """
+        This may be called multiple times for each region in the scan list
+        i.e. append
+        """
         raise NotImplementedError()
 
     def process_state_resource(self, state_resource):
-        # This function is called potentially multiple times as each resource
-        # is discovered by the state scanner i.e. append results to local store
+        """
+        This function is called potentially multiple times as each resource
+        is discovered by the state scanner i.e. append results to local storage.
+        """
         raise NotImplementedError()
 
     def compare(self, depth):
-        # this function should be called once, take the local data and return
-        # an array of result elements.
+        """
+        this function should be called once, take the local data and return
+        an array of :py:class:`ReportElement`.
+        """
         raise NotImplementedError()
 
 
