@@ -47,8 +47,6 @@ def scan():
     # Extract items of interest from States:
     logger.info("Now Looking at AWS (via Boto)")
 
-    report = {}
-
     scanned_elements = []
 
     for scan_element in config.elements_to_scan:
@@ -63,10 +61,9 @@ def scan():
         comparing_elements = []
         logger.info("Now comparing %s" % scan_element)
 
-        compared_elements, report = _compare_element(scan_element, compared_elements, comparing_elements, report)
+        compared_elements = _compare_element(scan_element, compared_elements, comparing_elements)
 
     logger.info("Scan Complete")
-    return report
 
 
 def _load_resource_modules():
@@ -90,7 +87,7 @@ def _load_resource_modules():
             imported = import_module("%s.register" % project)
             imported.register_resources()
         except Exception as e:
-            #logger.info(e)
+            logger.info(e)
             logger.info("Exception loading %s - might not be installed, or errors on load" % project)
 
 
@@ -120,14 +117,14 @@ def _real_scan_element(scan_element, scanned, scanning):
     return scanned
 
 
-def _compare_element(scan_element, compared, comparing, report):
+def _compare_element(scan_element, compared, comparing):
     # FIXME: this is recursive - change to a loop at some point
 
     rd = ResourceDirectory()
 
     if scan_element in compared:
         # its allready run, return
-        return compared, report
+        return compared
 
     if scan_element in comparing:
         raise Exception("Circular dependency found - code error in dependancy tree")
@@ -138,12 +135,12 @@ def _compare_element(scan_element, compared, comparing, report):
     if element:
         for required_element in element.depends_on:
             if required_element not in compared:
-                compared, report = _compare_element(required_element, compared, comparing, report)
+                compared = _compare_element(required_element, compared, comparing)
 
-        report[scan_element] = element.compare(depth=None) # FIXME - depth calculation
+        element.compare(depth=None) # FIXME - depth calculation
 
     compared.append(scan_element)
-    return compared, report
+    return compared
 
 
 def _s3_state_fetch(bucket_name):

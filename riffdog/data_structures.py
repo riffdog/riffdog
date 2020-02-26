@@ -136,7 +136,7 @@ class FoundItem:
             return "Matched item TF: [%s] <-> Real [%s]" % (self.terraform_id, self.real_id)
         elif self.in_terraform:
             return "Terraform item id [%s]" % self.terraform_id
-        elif self.in_real:
+        elif self.in_real_world:
             return "Real Object id [%s]" % self.real_id
         
         raise Exception("This is an invalid object not in Terraform OR Real")
