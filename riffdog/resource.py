@@ -20,11 +20,48 @@ class ResourceDirectory(object):
 
         resource_instances = {} # this is a dictionary of actual instances
 
+        _items = [] # this is the array of items
+
+        _terraform_items = {}
+        _real_items = {}
+
         def __init__(self):
             self.found_resources = {}
 
         def __str__(self):
-            return str(self.found_resources)
+            return str(self.found_resources) # FIXME - confirm both __init__ and __str__ 
+
+        def add_item(self, item):
+            if not item in self._items:
+               self._items.append(item)
+            self.update_indexes(item)
+
+        def update_item_indexes(self, item):
+            # add indexes!
+            if item.in_real_world:
+                self._real_items[item.real_id] = item
+            
+            if item.in_terraform:
+                self._terraform_items[item.real_id] = item
+
+        def get_item(self, terraform_id=None, real_id=None):
+            
+            # WARNING: multiple return paths
+
+            if not terraform_id and not real_id:
+                raise ArgumentException("Must have one of terraform_id or real_id")
+
+            elif terraform_id:
+                if not terraform_id in self._terraform_items:
+                    raise KeyError("id %s not in known terraform items" % terraform_id)
+                else:
+                    return self._terraform_items[terraform_id]
+            
+            elif real_id:
+                if not real_id in self._real_items:
+                    raise KeyError("is %s not in known real items" % real_id)
+                else:
+                    return self._real_items[real_id]
 
         def add(self, key, target_type):
             self.found_resources[key] = target_type
