@@ -49,7 +49,7 @@ class ResourceDirectory(object):
             # WARNING: multiple return paths
 
             if not terraform_id and not real_id:
-                raise ArgumentException("Must have one of terraform_id or real_id")
+                raise Exception("Must have one of terraform_id or real_id") # FIXME: make specific exception
 
             elif terraform_id:
                 if not terraform_id in self._terraform_items:
