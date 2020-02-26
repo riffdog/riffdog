@@ -1,4 +1,4 @@
-from riffdog.data_structures import RDConfig
+from riffdog.config import RDConfig
 
 
 class TestRDConfig:

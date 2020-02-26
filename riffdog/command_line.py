@@ -8,7 +8,9 @@ from json import dumps, JSONEncoder
 from tabulate import tabulate
 
 from .scanner import scan
-from .data_structures import RDConfig, StateStorage, ReportElement
+from .config import RDConfig, StateStorage
+from .data_structures import FoundItem
+from .resource import ResourceDirectory
 from .exceptions import RiffDogException
 
 logger = logging.getLogger(__name__)
@@ -17,12 +19,26 @@ DEFAULT_REGION = 'us-east-1'
 
 class ReportEncoder(JSONEncoder):
     def default(self, o):
-        if type(o) == ReportElement:
-            return {
+        if type(o) == FoundItem:
+            out = {
                 "matched": o.matched,
-                "notInAWS": o.in_tf_but_not_real,
-                "notInTF": o.in_real_but_not_tf
+                "inRealWorld": o.in_real_world,
+                "inTerraForm": o.in_real_but_not_tf
             }
+
+            if o.in_real_world:
+                out['inRealWorld'] = True
+                out['realWorldId'] = o.real_id
+            else:
+                out['inRealWorld'] = False
+
+            if o.in_terraform:
+                out['inTerraform'] = True
+                out['terraformId'] = o.terraform_id
+            else:
+                out['inTerraform'] = False
+
+            return out
         else:
             return o.__dict__
 
@@ -97,7 +113,7 @@ def main(*args):
 
     # 3. Start scans
     try:
-        results = scan()
+        scan()
     except RiffDogException as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(0)
@@ -105,18 +121,21 @@ def main(*args):
         print("Unexpected exception: {}".format(str(exc)), file=sys.stderr)
         sys.exit(1)
 
+    rd = ResourceDirectory()
+
+    results = rd._items  # FIXME - accessing internal object
+
     if parsed_args.json:
         print(dumps(results, cls=ReportEncoder))
     else:
+
         table_data = []
 
-        for key, report in results.items():
-            table_data += [[key, e, "✓", "x"] for e in report.in_real_but_not_tf]
-            table_data += [[key, e, "x", "✓"] for e in report.in_tf_but_not_real]
-
-            if parsed_args.show_matched:
-                table_data += [[key, e, "✓", "✓"] for e in report.matched]
-                table_data.reverse()   # We want matched at the top (a bit more out the way), a but more human friendly.
+        for item in results:
+            if not item.matched:
+                table_data += [[item.item_type, str(item), "✓" if item.in_real_world else "x", "✓" if item.in_terraform else "x"]]
+            if parsed_args.show_matched and item.matched:
+                table_data += [[item.item_type, str(item), "✓", "✓"]]
 
         print(tabulate(
             table_data,

@@ -5,7 +5,7 @@ from botocore.stub import Stubber
 
 from riffdog.scanner import scan, NO_FOUND_RESOURCES_ERROR, STORAGE_NOT_IMPLEMENTED_ERROR, _s3_state_fetch
 from riffdog.resource import ResourceDirectory
-from riffdog.data_structures import RDConfig
+from riffdog.config import RDConfig
 from riffdog.exceptions import ResourceNotFoundError, StorageNotImplemented
 
 

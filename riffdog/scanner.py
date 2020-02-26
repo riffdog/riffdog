@@ -7,7 +7,7 @@ from importlib import import_module
 
 import boto3
 
-from .data_structures import RDConfig, StateStorage
+from .config import RDConfig, StateStorage
 from .resource import ResourceDirectory
 from .exceptions import ResourceNotFoundError, StorageNotImplemented
 

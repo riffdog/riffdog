@@ -3,61 +3,7 @@ This module exists to hold data structures common across modules, the scanner
 and the command line interface
 """
 
-from enum import Enum
 from .resource import ResourceDirectory
-
-class ScanMode(Enum):
-    """
-    Mode of operation of scanner
-    """
-
-    LIGHT = 1
-    DEEP = 2
-
-
-class StateStorage(Enum):
-    AWS_S3 = 1
-    # FILE = 2
-
-
-class RDConfig:
-    """
-    RiffDog Config Object for controlling the scan.
-    """
-
-    class __RDConfig:
-        scan_mode = ScanMode.LIGHT
-
-        state_storage = StateStorage.AWS_S3
-        state_file_locations = []
-        regions = []
-        excluded_resources = []
-
-        base_elements_to_scan = []
-
-        # This is a list of the core repositories. It can be added to with command options
-        external_resource_libs = [
-            'riffdog_aws',
-            'riffdog_cloudflare'
-        ]
-
-        @property
-        def elements_to_scan(self):
-            return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
-
-            
-    instance = None
-
-    def __new__(cls): # __new__ always a classmethod
-        if not RDConfig.instance:
-            RDConfig.instance = RDConfig.__RDConfig()
-        return RDConfig.instance
-
-    def __getattr__(self, name):
-        return getattr(self.instance, name)
-
-    def __setattr__(self, name):
-        return setattr(self.instance, name)
 
 
 # class ReportElement:
@@ -93,6 +39,8 @@ class FoundItem:
 
     _terraform_id = None
     _real_id = None
+
+    item_type = None
 
     @property
     def terraform_id(self):
@@ -149,7 +97,7 @@ class FoundItem:
     def in_real_world(self):
         """
         Whether this item has been detected in the real world. Use this over other
-        methods.
+        methodds.
         """
         if self._real_id:
             return True
@@ -168,7 +116,9 @@ class FoundItem:
             return False
     
 
-    def __init__(self, terraform_id=None, real_id=None, state_data=None, real_data=None):
+    def __init__(self, item_type, terraform_id=None, real_id=None, state_data=None, real_data=None):
+
+        self.item_type = item_type
 
         self._terraform_id = terraform_id
         self._real_id = real_id

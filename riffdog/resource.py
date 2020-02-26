@@ -3,7 +3,7 @@ import logging
 
 import boto3
 
-from .data_structures import RDConfig
+from .config import RDConfig
 
 logger = logging.getLogger(__name__)
 
