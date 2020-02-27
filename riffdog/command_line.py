@@ -2,6 +2,8 @@ import logging
 import os
 import argparse
 import sys
+import pkgutil
+from importlib import import_module
 
 from json import dumps, JSONEncoder
 
@@ -16,6 +18,11 @@ from .exceptions import RiffDogException
 logger = logging.getLogger(__name__)
 DEFAULT_REGION = 'us-east-1'
 
+
+class ArgumentParser(argparse.ArgumentParser):
+
+    def error(self, message):
+        pass
 
 class ReportEncoder(JSONEncoder):
     def default(self, o):
@@ -43,22 +50,20 @@ class ReportEncoder(JSONEncoder):
             return o.__dict__
 
 
-def get_regions(region_args):
-    """
-    Current order of precedence
-    - AWS_DEFAULT_REGION overrides everything else
-    - region_args come next
-    - fall back to us-east-1 I guess
-    """
-    env_region = os.environ.get('AWS_DEFAULT_REGION', None)
-    regions = []
-    if env_region is not None and env_region:
-        regions.append(env_region)
-    elif region_args:
-        regions.extend(region_args)
-    else:
-        regions.append(DEFAULT_REGION)
-    return regions
+def find_arguments(argparser, imports):
+    # this is related to, but not, resource scanners
+
+    # attempt to scan other projects
+    print("Looking for external modules")
+    for project in imports:
+        try:
+            imported = import_module("%s.config" % project)
+            imported.add_args(argparser)
+            imported.config()
+        except Exception as e:
+            print(e)
+            print("Exception loading %s - might not be installed, or errors on load" % project)
+            # Can not raise here because you want to pass on optional core modules
 
 
 def main(*args):
@@ -66,17 +71,39 @@ def main(*args):
     This is the command line entry point
     """
     # Pre-stuff - use argparser to get command line arguments
+
+    pre_parser = ArgumentParser(description='Terraform - AWS infrastructure scanner', add_help=False)
+    pre_parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
+    #pre_parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='')
+    
+    print("Pre Parsing")
+
+    pre_parsed_args = pre_parser.parse_args(*args)
+
+    print("includes: %s" % pre_parsed_args.include)
+    
+    print(pre_parsed_args)
+
+
     parser = argparse.ArgumentParser(description='Terraform - AWS infrastructure scanner')
     parser.add_argument('-v', '--verbose', help='Run in Verbose mode (try -vv for info output)', action='count')
     parser.add_argument('-b', '--bucket', help='Bucket containing state file location', action='append', nargs=1)
     parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
-    parser.add_argument('--region', help="AWS regions to use", action='append')
+    #parser.add_argument('--region', help="AWS regions to use", action='append')
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
+    
+    # needs to be here to prevent bad args if used (even though pre-parsed)
     parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
+    
+    config = RDConfig()
 
+    config.external_resource_libs += pre_parsed_args.include
 
+    find_arguments(parser, config.external_resource_libs)
+    
     # Parse args.
+    
     parsed_args = parser.parse_args()
 
     logging_level = logging.ERROR
@@ -96,15 +123,16 @@ def main(*args):
     logger.debug("cmd starting")
 
     # 2. Build config object
-    config = RDConfig()
 
-    config.state_storage = StateStorage.AWS_S3
-    config.regions = get_regions(parsed_args.region)
-    config.excluded_resources = parsed_args.exclude_resource
-    config.external_resource_libs += parsed_args.include
+    for arg in vars(parsed_args):
+        setattr(config, arg, getattr(parsed_args, arg))
 
+    
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
+
+    # These need to be added in as defaults:
+    config.state_storage = StateStorage.AWS_S3
 
     # If there are no statefiles, quit early.
     if len(config.state_file_locations) == 0:

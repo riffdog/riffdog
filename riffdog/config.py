@@ -20,24 +20,33 @@ class RDConfig:
     """
 
     class __RDConfig:
-        scan_mode = ScanMode.LIGHT
-
-        state_storage = StateStorage.AWS_S3
-        state_file_locations = []
-        regions = []
-        excluded_resources = []
-
-        base_elements_to_scan = []
-
-        # This is a list of the core repositories. It can be added to with command options
-        external_resource_libs = [
-            'riffdog_aws',
-            'riffdog_cloudflare'
-        ]
+        _configurations = {}
 
         @property
         def elements_to_scan(self):
             return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
+
+
+        def __init__(self):
+            # Set defaults and must-have settings
+            self.external_resource_libs = [
+                'riffdog_aws',
+                #'riffdog_cloudflare'
+            ]
+
+            self.state_file_locations = []
+
+            self.excluded_resources = []
+
+            self.base_elements_to_scan = []
+
+            self.scan_mode = ScanMode.LIGHT
+
+        def __getattr__(self, name):
+            return self._configurations[name]
+
+        def __setattr__(self, name, value):
+            self._configurations[name] = value
 
             
     instance = None

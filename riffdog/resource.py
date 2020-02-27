@@ -158,8 +158,7 @@ class Resource:
 
     def fetch_real_resources(self):
         """
-        This may be called multiple times for each region in the scan list
-        i.e. append
+        This is called once.
         """
         raise NotImplementedError()
 
