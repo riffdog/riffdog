@@ -21,7 +21,7 @@ class ResourceDirectory(object):
         _items = [] # this is the array of items
 
         _terraform_items = {}
-        _predicted_resources = {}
+        _predicted_items = {}
         _real_items = {}
 
         def __init__(self):
@@ -44,7 +44,7 @@ class ResourceDirectory(object):
                 self._terraform_items[item.real_id] = item
             
             if item.predicted_id:
-                self._predicted_resources = item
+                self._predicted_items[item.predicted_id] = item
 
         def get_item(self, terraform_id=None, real_id=None, predicted_id=None):
             

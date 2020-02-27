@@ -75,15 +75,8 @@ def main(*args):
     pre_parser = ArgumentParser(description='Terraform - AWS infrastructure scanner', add_help=False)
     pre_parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
     #pre_parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='')
-    
-    print("Pre Parsing")
 
     pre_parsed_args = pre_parser.parse_args(*args)
-
-    print("includes: %s" % pre_parsed_args.include)
-    
-    print(pre_parsed_args)
-
 
     parser = argparse.ArgumentParser(description='Terraform - AWS infrastructure scanner')
     parser.add_argument('-v', '--verbose', help='Run in Verbose mode (try -vv for info output)', action='count')
