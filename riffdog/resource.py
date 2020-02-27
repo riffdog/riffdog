@@ -21,6 +21,7 @@ class ResourceDirectory(object):
         _items = [] # this is the array of items
 
         _terraform_items = {}
+        _predicted_resources = {}
         _real_items = {}
 
         def __init__(self):
@@ -41,13 +42,16 @@ class ResourceDirectory(object):
             
             if item.in_terraform:
                 self._terraform_items[item.real_id] = item
+            
+            if item.predicted_id:
+                self._predicted_resources = item
 
-        def get_item(self, terraform_id=None, real_id=None):
+        def get_item(self, terraform_id=None, real_id=None, predicted_id=None):
             
             # WARNING: multiple return paths
 
-            if not terraform_id and not real_id:
-                raise Exception("Must have one of terraform_id or real_id") # FIXME: make specific exception
+            if not terraform_id and not real_id and not predicted_id:
+                raise Exception("Must have one of terraform_id or real_id or a predicted_id") # FIXME: make specific exception
 
             elif terraform_id:
                 if not terraform_id in self._terraform_items:
@@ -57,9 +61,16 @@ class ResourceDirectory(object):
             
             elif real_id:
                 if not real_id in self._real_items:
-                    raise KeyError("is %s not in known real items" % real_id)
+                    raise KeyError("id %s not in known real items" % real_id)
                 else:
                     return self._real_items[real_id]
+
+            elif predicted_id:
+                if not predicted_id in self._predicted_items:
+                    raise KeyError("id %s is not a predicted item" % predicted_id)
+                else:
+                    return self._predicted_items[predicted_id]
+
 
         def add(self, key, target_type):
             self.found_resources[key] = target_type

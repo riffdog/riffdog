@@ -39,6 +39,7 @@ class FoundItem:
 
     _terraform_id = None
     _real_id = None
+    _predicted_id = None
 
     item_type = None
 
@@ -70,6 +71,21 @@ class FoundItem:
         self._real_id = value
         rd = ResourceDirectory()
         rd.update_item_indexes(self)
+
+    @property
+    def predicted_id(self):
+        """
+        What is the predicted ID in the real world (as Terraform thinks). May 
+        return None
+        """
+        return self._predicted_id
+
+    @predicted_id.setter
+    def predicted_id(self, value):
+        self._predicted_id = value
+        rd = ResourceDirectory()
+        rd.update_item_indexes(self)
+
 
     state_data = None
     """
@@ -116,12 +132,13 @@ class FoundItem:
             return False
     
 
-    def __init__(self, item_type, terraform_id=None, real_id=None, state_data=None, real_data=None):
+    def __init__(self, item_type, terraform_id=None, real_id=None, state_data=None, real_data=None, predicted_id=None):
 
         self.item_type = item_type
 
         self._terraform_id = terraform_id
         self._real_id = real_id
+        self._predicted_id = predicted_id
         self.state_data = state_data
         self.real_data = real_data
 
