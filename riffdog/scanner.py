@@ -54,16 +54,25 @@ def scan():
         scanned_elements = _real_scan_element(scan_element, scanned_elements, scanning_elements)
             
     # now compare
-    
-    compared_elements = []
 
-    for scan_element in config.elements_to_scan:
-        comparing_elements = []
-        logger.info("Now comparing %s" % scan_element)
-
-        compared_elements = _compare_element(scan_element, compared_elements, comparing_elements)
+    # This is now different now - 0.1 upwards RC
+    _compare(rd._items, config.scan_mode) # FIXME - accessing internal object
 
     logger.info("Scan Complete")
+
+
+def _compare(items, scan_mode):
+
+    rd = ResourceDirectory()
+
+    for item in items:
+
+        element = rd.lookup(item.item_type)
+        try:
+            element.process_state_resource(res, item, scan_mode)
+            # element won't be none at this point, if it is, fatal error because someone bugged
+        except Exception:
+            logger.info("comparison failed for item %s " % item)
 
 
 def _load_resource_modules():
@@ -115,32 +124,6 @@ def _real_scan_element(scan_element, scanned, scanning):
 
     scanned.append(scan_element)
     return scanned
-
-
-def _compare_element(scan_element, compared, comparing):
-    # FIXME: this is recursive - change to a loop at some point
-
-    rd = ResourceDirectory()
-
-    if scan_element in compared:
-        # its allready run, return
-        return compared
-
-    if scan_element in comparing:
-        raise Exception("Circular dependency found - code error in dependancy tree")
-
-    comparing.append(scan_element)
-
-    element = rd.lookup(scan_element)
-    if element:
-        for required_element in element.depends_on:
-            if required_element not in compared:
-                compared = _compare_element(required_element, compared, comparing)
-
-        element.compare(depth=None) # FIXME - depth calculation
-
-    compared.append(scan_element)
-    return compared
 
 
 def _s3_state_fetch(bucket_name):
