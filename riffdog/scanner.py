@@ -66,13 +66,13 @@ def _compare(items, scan_mode):
     rd = ResourceDirectory()
 
     for item in items:
-
-        element = rd.lookup(item.item_type)
-        try:
-            element.process_state_resource(res, item, scan_mode)
-            # element won't be none at this point, if it is, fatal error because someone bugged
-        except Exception:
-            logger.info("comparison failed for item %s " % item)
+        if item.matched:
+            element = rd.lookup(item.item_type)
+            try:
+                element.compare(item, scan_mode)
+                # element won't be none at this point, if it is, fatal error because someone bugged
+            except Exception:
+                logger.info("%s comparison failed for item %s " % (item.item_type, item))
 
 
 def _load_resource_modules():
@@ -156,7 +156,7 @@ def _search_state(bucket_name, key, s3):
             if element:
                 element.process_state_resource(res, key)
             else:
-                logging.debug("Unsupported resource %s" % res['type'])
+                logging.debug(" Unsupported resource %s" % res['type'])
 
     except Exception as e:
         # FIXME: tighten this up could be - file not Json issue, permission of s3 etc, as well as the terraform state

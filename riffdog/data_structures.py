@@ -42,6 +42,15 @@ class FoundItem:
     _predicted_id = None
 
     item_type = None
+    """
+    The resource type of the item found (terraform naming strategy)
+    """
+
+    dirty = False
+    """
+    Whether this item is or isn't the same as the terraform state thinks (only valid)
+    if matched.
+    """
 
     @property
     def terraform_id(self):

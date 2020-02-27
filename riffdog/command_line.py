@@ -154,13 +154,13 @@ def main(*args):
 
         for item in results:
             if not item.matched:
-                table_data += [[item.item_type, str(item), "✓" if item.in_real_world else "x", "✓" if item.in_terraform else "x"]]
+                table_data += [[item.item_type, str(item), "✓" if item.in_real_world else "x", "✓" if item.in_terraform else "x", "N/A"]]
             if parsed_args.show_matched and item.matched:
-                table_data += [[item.item_type, str(item), "✓", "✓"]]
+                table_data += [[item.item_type, str(item), "✓", "✓", "x" if item.dirty else "✓"]]
 
         print(tabulate(
             table_data,
-            headers=["Resource Type", "Identifier", "Real", "Terraform"]))
+            headers=["Resource Type", "Identifier", "Real", "Terraform", "Dirty"]))
 
         print("-------------------------")
         print("Please note, for elements in 'Real' (aka AWS) but not in Terraform, "
