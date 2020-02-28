@@ -54,17 +54,30 @@ def find_arguments(argparser, imports):
     # this is related to, but not, resource scanners
 
     # attempt to scan other projects
-    print("Looking for external modules")
+    # So - printing here is *bad* because logging is not yet vonfigured.
+
+    logging.info("Looking for external modules")
     for project in imports:
         try:
+            logging.info("Loading config for %s" % project)
             imported = import_module("%s.config" % project)
             imported.add_args(argparser)
             imported.config()
         except Exception as e:
-            print(e)
-            print("Exception loading %s - might not be installed, or errors on load" % project)
+            #print(e)
+            logging.warn("Exception loading %s - might not be installed, or errors on load" % project)
             # Can not raise here because you want to pass on optional core modules
+            
 
+
+def _add_core_arguments(parser):
+    parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
+    parser.add_argument('-v', '--verbose', help='Run in Verbose mode (try -vv for info output)', action='count')
+    parser.add_argument('-b', '--bucket', help='Bucket containing state file location', action='append', nargs=1)
+    parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
+    parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
+    parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
+    
 
 def main(*args):
     """
@@ -73,22 +86,29 @@ def main(*args):
     # Pre-stuff - use argparser to get command line arguments
 
     pre_parser = ArgumentParser(description='Terraform - AWS infrastructure scanner', add_help=False)
-    pre_parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
-    #pre_parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='')
-
+    
+    _add_core_arguments(pre_parser)
+    
     pre_parsed_args = pre_parser.parse_args(*args)
 
+    logging_level = logging.ERROR
+
+    if pre_parsed_args.verbose is not None:
+        if parsed_args.verbose > 2:
+            logging_level = logging.DEBUG
+        elif parsed_args.verbose == 2:
+            logging_level = logging.INFO
+        elif parsed_args.verbose == 1:
+            logging_level = logging.WARNING
+
+    # 1. Initalise logging.
+
+    logging.basicConfig(level=logging_level, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
+    logger.debug("cmd starting")
+
     parser = argparse.ArgumentParser(description='Terraform - AWS infrastructure scanner')
-    parser.add_argument('-v', '--verbose', help='Run in Verbose mode (try -vv for info output)', action='count')
-    parser.add_argument('-b', '--bucket', help='Bucket containing state file location', action='append', nargs=1)
-    parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
-    #parser.add_argument('--region', help="AWS regions to use", action='append')
-    parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
-    parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
-    
-    # needs to be here to prevent bad args if used (even though pre-parsed)
-    parser.add_argument('-i', '--include', help="External libraries to scan for Resources", action='append', default=[])
-    
+    _add_core_arguments(parser)
+
     config = RDConfig()
 
     config.external_resource_libs += pre_parsed_args.include
@@ -99,21 +119,6 @@ def main(*args):
     
     parsed_args = parser.parse_args()
 
-    logging_level = logging.ERROR
-
-    if parsed_args.verbose is not None:
-        if parsed_args.verbose > 2:
-            logging_level = logging.DEBUG
-        elif parsed_args.verbose == 2:
-            logging_level = logging.INFO
-        elif parsed_args.verbose == 1:
-            logging_level = logging.WARNING
-
-    # 1. Initalise logging.
-    # FIXME: format to config & cmd line options
-
-    logging.basicConfig(level=logging_level, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
-    logger.debug("cmd starting")
 
     # 2. Build config object
 
