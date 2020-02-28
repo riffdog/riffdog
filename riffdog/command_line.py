@@ -94,11 +94,11 @@ def main(*args):
     logging_level = logging.ERROR
 
     if pre_parsed_args.verbose is not None:
-        if parsed_args.verbose > 2:
+        if pre_parsed_args.verbose > 2:
             logging_level = logging.DEBUG
-        elif parsed_args.verbose == 2:
+        elif pre_parsed_args.verbose == 2:
             logging_level = logging.INFO
-        elif parsed_args.verbose == 1:
+        elif pre_parsed_args.verbose == 1:
             logging_level = logging.WARNING
 
     # 1. Initalise logging.
