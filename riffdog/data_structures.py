@@ -150,6 +150,7 @@ class FoundItem:
         self._predicted_id = predicted_id
         self.state_data = state_data
         self.real_data = real_data
+        self.dirty = False
 
         rd = ResourceDirectory()
         rd.add_item(self)

@@ -71,7 +71,8 @@ def _compare(items, scan_mode):
             try:
                 element.compare(item, scan_mode)
                 # element won't be none at this point, if it is, fatal error because someone bugged
-            except Exception:
+            except Exception as e:
+                logger.info(e)
                 logger.info("%s comparison failed for item %s " % (item.item_type, item))
 
 
@@ -137,21 +138,28 @@ def _s3_state_fetch(bucket_name):
 
     items = client.list_objects(Bucket=bucket_name, Prefix="")
 
-    for item in items.get('Contents', []):
+    _search_state(bucket_name, "sandbox_main/services/django_lambda_test/terraform.tfstate", s3)
+
+    #for item in items.get('Contents', []):
         # if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
-        logging.info("Inspecting s3 item: %s" % item['Key'])
-        _search_state(bucket_name, item['Key'], s3)
+    #    logging.info("Inspecting s3 item: %s" % item['Key'])
+    #    _search_state(bucket_name, item['Key'], s3)
 
 
 def _search_state(bucket_name, key, s3):
     obj = s3.Object(bucket_name, key)
     content = obj.get()['Body'].read()
     rd = ResourceDirectory()
-
+    parsed = ""
     try:
         parsed = json.loads(content)
 
-        for res in parsed['resources']:
+        if parsed['version'] > 3:
+            elements = parsed['resources']
+        else:
+            elements = parsed['modules'][0]['resources'].values()
+
+        for res in elements:
             element = rd.lookup(res['type'])
             if element:
                 element.process_state_resource(res, key)
