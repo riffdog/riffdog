@@ -1,9 +1,7 @@
 import functools
 import logging
 
-import boto3
-
-from .data_structures import RDConfig
+from .config import RDConfig
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +18,59 @@ class ResourceDirectory(object):
 
         resource_instances = {} # this is a dictionary of actual instances
 
+        _items = [] # this is the array of items
+
+        _terraform_items = {}
+        _predicted_items = {}
+        _real_items = {}
+
         def __init__(self):
             self.found_resources = {}
 
         def __str__(self):
-            return str(self.found_resources)
+            return str(self.found_resources) # FIXME - confirm both __init__ and __str__ 
+
+        def add_item(self, item):
+            if not item in self._items:
+               self._items.append(item)
+            self.update_item_indexes(item)
+
+        def update_item_indexes(self, item):
+            # add indexes!
+            if item.in_real_world:
+                self._real_items[item.real_id] = item
+            
+            if item.in_terraform:
+                self._terraform_items[item.real_id] = item
+            
+            if item.predicted_id:
+                self._predicted_items[item.predicted_id] = item
+
+        def get_item(self, terraform_id=None, real_id=None, predicted_id=None):
+            
+            # WARNING: multiple return paths
+
+            if not terraform_id and not real_id and not predicted_id:
+                raise Exception("Must have one of terraform_id or real_id or a predicted_id") # FIXME: make specific exception
+
+            elif terraform_id:
+                if not terraform_id in self._terraform_items:
+                    raise KeyError("id %s not in known terraform items" % terraform_id)
+                else:
+                    return self._terraform_items[terraform_id]
+            
+            elif real_id:
+                if not real_id in self._real_items:
+                    raise KeyError("id %s not in known real items" % real_id)
+                else:
+                    return self._real_items[real_id]
+
+            elif predicted_id:
+                if not predicted_id in self._predicted_items:
+                    raise KeyError("id %s is not a predicted item" % predicted_id)
+                else:
+                    return self._predicted_items[predicted_id]
+
 
         def add(self, key, target_type):
             self.found_resources[key] = target_type
@@ -123,8 +169,7 @@ class Resource:
 
     def fetch_real_resources(self):
         """
-        This may be called multiple times for each region in the scan list
-        i.e. append
+        This is called once.
         """
         raise NotImplementedError()
 
@@ -142,72 +187,3 @@ class Resource:
         """
         raise NotImplementedError()
 
-
-# FIXME: this might want to go into a specific module for namespacing?
-
-class AWSResource(Resource):
-    """
-    Middle Inheritance to handle getting the correct client & resource objects
-    """
-
-    # set this to False if this class is a Global resource (e.g. s3)
-    regional_resource = True
-
-    def fetch_real_resources(self):
-        
-        if self.regional_resource:
-            for region in RDConfig().regions:
-                self.fetch_real_regional_resources(region)
-        else:
-            self.fetch_real_global_resources()
-
-    def fetch_real_regional_resources(self, region):
-        raise NotImplemented()
-
-    
-    def fetch_real_global_resources(self):
-        raise NotImplemented()
-    
-
-    def _get_client(self, aws_client_type, region):
-
-        # FIXME: Some previous code to bring back to allow alternative queries
-
-        # if account.auth_method == Account.IAM_ROLE:
-        #     credentials = _get_sts_credentials(account)
-        #     client = boto3.client(
-        #         aws_client_type,
-        #         region_name=region, aws_access_key_id=credentials['AccessKeyId'],
-        #         aws_secret_access_key=credentials['SecretAccessKey'],
-        #         aws_session_token=credentials['SessionToken'])
-        # else:
-        #   client = boto3.client(
-        #       aws_client_type,
-        #       region_name=region,
-        #       aws_access_key_id=account.key,
-        #       aws_secret_access_key=account.secret)
-
-        client = boto3.client(aws_client_type, region_name=region)
-        return client
-
-    def _get_resource(self, aws_resource_type, region):
-        # if not account:
-        #     account = Account.objects.get(default=True)
-
-        # if account.auth_method == Account.IAM_ROLE:
-        #     credentials = _get_sts_credentials(account)
-        #     resource = boto3.resource(
-        #         aws_resource_type,
-        #         region_name=region, aws_access_key_id=credentials['AccessKeyId'],
-        #         aws_secret_access_key=credentials['SecretAccessKey'],
-        #         aws_session_token=credentials['SessionToken'])
-
-        # else:
-        #     resource = boto3.resource(
-        #         aws_resource_type,
-        #         region_name=region,
-        #         aws_access_key_id=account.key,
-        #         aws_secret_access_key=account.secret)
-
-        resource = boto3.resource(aws_resource_type, region_name=region)
-        return resource

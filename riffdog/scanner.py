@@ -7,7 +7,7 @@ from importlib import import_module
 
 import boto3
 
-from .data_structures import RDConfig, StateStorage
+from .config import RDConfig, StateStorage
 from .resource import ResourceDirectory
 from .exceptions import ResourceNotFoundError, StorageNotImplemented
 
@@ -47,8 +47,6 @@ def scan():
     # Extract items of interest from States:
     logger.info("Now Looking at AWS (via Boto)")
 
-    report = {}
-
     scanned_elements = []
 
     for scan_element in config.elements_to_scan:
@@ -56,17 +54,26 @@ def scan():
         scanned_elements = _real_scan_element(scan_element, scanned_elements, scanning_elements)
             
     # now compare
-    
-    compared_elements = []
 
-    for scan_element in config.elements_to_scan:
-        comparing_elements = []
-        logger.info("Now comparing %s" % scan_element)
-
-        compared_elements, report = _compare_element(scan_element, compared_elements, comparing_elements, report)
+    # This is now different now - 0.1 upwards RC
+    _compare(rd._items, config.scan_mode) # FIXME - accessing internal object
 
     logger.info("Scan Complete")
-    return report
+
+
+def _compare(items, scan_mode):
+
+    rd = ResourceDirectory()
+
+    for item in items:
+        if item.matched:
+            element = rd.lookup(item.item_type)
+            try:
+                element.compare(item, scan_mode)
+                # element won't be none at this point, if it is, fatal error because someone bugged
+            except Exception as e:
+                logger.info(e)
+                logger.info("%s comparison failed for item %s " % (item.item_type, item))
 
 
 def _load_resource_modules():
@@ -90,7 +97,7 @@ def _load_resource_modules():
             imported = import_module("%s.register" % project)
             imported.register_resources()
         except Exception as e:
-            #logger.info(e)
+            logger.info(e)
             logger.info("Exception loading %s - might not be installed, or errors on load" % project)
 
 
@@ -120,32 +127,6 @@ def _real_scan_element(scan_element, scanned, scanning):
     return scanned
 
 
-def _compare_element(scan_element, compared, comparing, report):
-    # FIXME: this is recursive - change to a loop at some point
-
-    rd = ResourceDirectory()
-
-    if scan_element in compared:
-        # its allready run, return
-        return compared, report
-
-    if scan_element in comparing:
-        raise Exception("Circular dependency found - code error in dependancy tree")
-
-    comparing.append(scan_element)
-
-    element = rd.lookup(scan_element)
-    if element:
-        for required_element in element.depends_on:
-            if required_element not in compared:
-                compared, report = _compare_element(required_element, compared, comparing, report)
-
-        report[scan_element] = element.compare(depth=None) # FIXME - depth calculation
-
-    compared.append(scan_element)
-    return compared, report
-
-
 def _s3_state_fetch(bucket_name):
     """
     This function exists to fetch state files from S3
@@ -157,26 +138,33 @@ def _s3_state_fetch(bucket_name):
 
     items = client.list_objects(Bucket=bucket_name, Prefix="")
 
-    for item in items.get('Contents', []):
+    _search_state(bucket_name, "sandbox_main/services/django_lambda_test/terraform.tfstate", s3)
+
+    #for item in items.get('Contents', []):
         # if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
-        logging.info("Inspecting s3 item: %s" % item['Key'])
-        _search_state(bucket_name, item['Key'], s3)
+    #    logging.info("Inspecting s3 item: %s" % item['Key'])
+    #    _search_state(bucket_name, item['Key'], s3)
 
 
 def _search_state(bucket_name, key, s3):
     obj = s3.Object(bucket_name, key)
     content = obj.get()['Body'].read()
     rd = ResourceDirectory()
-
+    parsed = ""
     try:
         parsed = json.loads(content)
 
-        for res in parsed['resources']:
+        if parsed['version'] > 3:
+            elements = parsed['resources']
+        else:
+            elements = parsed['modules'][0]['resources'].values()
+
+        for res in elements:
             element = rd.lookup(res['type'])
             if element:
                 element.process_state_resource(res, key)
             else:
-                logging.debug("Unsupported resource %s" % res['type'])
+                logging.debug(" Unsupported resource %s" % res['type'])
 
     except Exception as e:
         # FIXME: tighten this up could be - file not Json issue, permission of s3 etc, as well as the terraform state
