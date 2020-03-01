@@ -138,12 +138,12 @@ def _s3_state_fetch(bucket_name):
 
     items = client.list_objects(Bucket=bucket_name, Prefix="")
 
-    _search_state(bucket_name, "sandbox_main/services/django_lambda_test/terraform.tfstate", s3)
+    # _search_state(bucket_name, "sandbox_main/services/django_lambda_test/terraform.tfstate", s3)
 
-    #for item in items.get('Contents', []):
-        # if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
-    #    logging.info("Inspecting s3 item: %s" % item['Key'])
-    #    _search_state(bucket_name, item['Key'], s3)
+    for item in items.get('Contents', []):
+        if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
+            logging.info("Inspecting s3 item: %s" % item['Key'])
+            _search_state(bucket_name, item['Key'], s3)
 
 
 def _search_state(bucket_name, key, s3):
