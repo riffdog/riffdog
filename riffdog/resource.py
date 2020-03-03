@@ -88,13 +88,19 @@ class ResourceDirectory(object):
             # if got this far, its not an instance, so try to make one
 
             if key in self.found_resources:
-                instance = self.found_resources[key]()
+                instance = self.found_resources[key](key)
                 self.resource_instances[key] = instance
                 return instance
             elif key in self.resource_aliases:
-                instance = self.found_resources[self.resource_aliases[key]]()
-                self.resource_instances[key] = instance
-                return instance
+                aliased_key = self.resource_aliases[key]
+
+                # check if aliased_key is instantiated
+                if aliased_key in self.resource_instances:
+                    return self.resource_instances[aliased_key] 
+                else:
+                    instance = self.found_resources[aliased_key](aliased_key)
+                    self.resource_instances[aliased_key] = instance
+                    return instance
             else:
                 # Not in the mapping or as an alias :. not scanned
                 return None
@@ -159,6 +165,11 @@ class Resource:
 
     """
 
+    resource_type = None
+    """
+    The Resource Type will match the registered name (the first one if multiple terraform types are given.)
+    """
+
     depends_on = [] 
     """
     This is an array of object references used to control the fetch_real_resources
@@ -166,6 +177,11 @@ class Resource:
     
     i.e. depends_on = [Foo] where Foo is a class reference.
     """
+
+
+    def __init__(self, resource_type):
+        self.resource_type = resource_type
+        
 
     def fetch_real_resources(self):
         """
