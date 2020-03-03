@@ -13,19 +13,28 @@ class ResourceDirectory(object):
     # This is the resource directory singleton. There can be only one.
 
     class __ResourceDirectory:
-        found_resources = {}    # this is a dictionary of class instantiators
-        resource_aliases = {}   # this is a dictionary aliases to above
+        found_resources = None    # this is a dictionary of class instantiators
+        resource_aliases = None  # this is a dictionary aliases to above
 
-        resource_instances = {} # this is a dictionary of actual instances
+        resource_instances = None # this is a dictionary of actual instances
 
-        _items = [] # this is the array of items
+        _items = None # this is the array of items
 
-        _terraform_items = {}
-        _predicted_items = {}
-        _real_items = {}
+        _terraform_items = None
+        _predicted_items = None
+        _real_items = None
 
         def __init__(self):
             self.found_resources = {}
+            self.resource_aliases = {}   
+
+            self. resource_instances = {} # this is a dictionary of actual instances
+
+            self._items = [] # this is the array of items
+
+            self._terraform_items = {}
+            self._predicted_items = {}
+            self._real_items = {}
 
         def __str__(self):
             return str(self.found_resources) # FIXME - confirm both __init__ and __str__ 
@@ -118,8 +127,8 @@ class ResourceDirectory(object):
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
-    def __setattr__(self, name):
-        return setattr(self.instance, name)
+    def __setattr__(self, name, value):
+        return setattr(self.instance, name, value)
 
 
 def register(*args):

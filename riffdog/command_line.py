@@ -79,17 +79,18 @@ def _add_core_arguments(parser):
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
     
 
-def main(*args):
+def main():
     """
     This is the command line entry point
     """
+
     # Pre-stuff - use argparser to get command line arguments
 
-    pre_parser = ArgumentParser(description='Terraform - AWS infrastructure scanner', add_help=False)
+    pre_parser = ArgumentParser(add_help=False)
     
     _add_core_arguments(pre_parser)
     
-    pre_parsed_args = pre_parser.parse_args(*args)
+    pre_parsed_args = pre_parser.parse_args(sys.argv)
 
     logging_level = logging.ERROR
 
@@ -106,7 +107,7 @@ def main(*args):
     logging.basicConfig(level=logging_level, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
     logger.debug("cmd starting")
 
-    parser = argparse.ArgumentParser(description='Terraform - AWS infrastructure scanner')
+    parser = argparse.ArgumentParser(description='Terraform - Reality Infrastructure Scanner')
     _add_core_arguments(parser)
 
     config = RDConfig()
@@ -117,7 +118,7 @@ def main(*args):
     
     # Parse args.
     
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(sys.argv)
 
 
     # 2. Build config object
