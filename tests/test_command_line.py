@@ -18,7 +18,6 @@ class TestCommandLine:
         ResourceDirectory.instance = None
 
     def test_help(self, capsys):
-
         testargs = ["riffdog", "-h"]
         with patch('sys.argv', testargs):
             with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -32,14 +31,13 @@ class TestCommandLine:
 
         output = captured.out
 
-        assert "Terraform - Reality Infrastructure Scanner" in captured.out # if this is there, help is there
-        assert "Test Resources" not in captured.out # this shouldn't be there as no -i 
-        assert len(captured.err) == 0               # no error output
+        assert "Terraform - Reality Infrastructure Scanner" in output  # if this is there, help is there
+        assert "Test Resources" not in output  # this shouldn't be there as no -i
+        assert len(captured.err) == 0          # no error output
 
-
-
-    def test_help_imports(self, capsys):
-
+    def test_help_imports(self, capsys, monkeypatch):
+        # Do we want to reference this path better?
+        monkeypatch.syspath_prepend('./tests/test_resource_pack/')
         testargs = ["riffdog", "-i", "test_resource_pack", "-h"]
         with patch('sys.argv', testargs):
             with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -49,11 +47,10 @@ class TestCommandLine:
             assert pytest_wrapped_e.type == SystemExit
         
         captured = capsys.readouterr()
-        # inspect captured 
-
         output = captured.out
 
-        assert "Terraform - Reality Infrastructure Scanner" in captured.out # if this is there, help is there
-        assert "Test Resources" in captured.out # this should be there as no -i 
-        assert len(captured.err) == 0               # no error output
+        assert "Terraform - Reality Infrastructure Scanner" in output  # if this is there, help is there
+        assert "Test Resources" in output  # this should be there as we've added the fake module
+        assert "--test_value TEST_VALUE" in output
+        assert len(captured.err) == 0       # no error output
 
