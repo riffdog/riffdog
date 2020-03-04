@@ -23,7 +23,11 @@ class RDConfig:
 
         @property
         def elements_to_scan(self):
-            return (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
+            if self.included_resources:
+                resources = (x for x in self.included_resources)
+            else:
+                resources = (x for x in self.base_elements_to_scan if x not in self.excluded_resources)
+            return resources
 
         def __init__(self):
 
@@ -38,6 +42,7 @@ class RDConfig:
             self.state_file_locations = []
 
             self.excluded_resources = []
+            self.included_resources = []
 
             self.base_elements_to_scan = []
 

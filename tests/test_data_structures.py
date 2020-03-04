@@ -18,6 +18,19 @@ class TestRDConfig:
 
         assert list(config.elements_to_scan) == config.base_elements_to_scan[1:]
 
+    def test_include_no_exclude(self):
+        config = RDConfig()
+        config.included_resources = ['aws_bucket']
+
+        assert list(config.elements_to_scan) == config.included_resources
+
+    def test_include_with_excluded(self):
+        config = RDConfig()
+        config.exclude_resources = ['aws_s3_bucket']
+        config.included_resources = ['aws_vpc', 'aws_subnet']
+
+        assert list(config.elements_to_scan) == config.included_resources
+
     def test_singleton(self):
         config = RDConfig()
         config.regions = ['us-east-1', 'eu-west-1']

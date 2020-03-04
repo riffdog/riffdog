@@ -150,6 +150,7 @@ def _search_state(bucket_name, key, s3):
     obj = s3.Object(bucket_name, key)
     content = obj.get()['Body'].read()
     rd = ResourceDirectory()
+    config = RDConfig()
     parsed = ""
     try:
         parsed = json.loads(content)
@@ -160,11 +161,14 @@ def _search_state(bucket_name, key, s3):
             elements = parsed['modules'][0]['resources'].values()
 
         for res in elements:
-            element = rd.lookup(res['type'])
-            if element:
-                element.process_state_resource(res, key)
+            if res['type'] in config.elements_to_scan:
+                element = rd.lookup(res['type'])
+                if element:
+                    element.process_state_resource(res, key)
+                else:
+                    logging.debug(" Unsupported resource %s" % res['type'])
             else:
-                logging.debug(" Unsupported resource %s" % res['type'])
+                logging.debug("Skipped %s as not in elments to scan" % res['type'])
 
     except Exception as e:
         # FIXME: tighten this up could be - file not Json issue, permission of s3 etc, as well as the terraform state
