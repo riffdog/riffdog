@@ -77,6 +77,7 @@ def _add_core_arguments(parser):
     parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
+    parser.add_argument('--include-resource', help="Includes a particular resource", action="append", default=[])
     
 
 def main(*args):
@@ -112,6 +113,8 @@ def main(*args):
     config = RDConfig()
 
     config.external_resource_libs += pre_parsed_args.include
+    config.excluded_resources = pre_parsed_args.exclude_resource
+    config.included_resources = pre_parsed_args.include_resource
 
     find_arguments(parser, config.external_resource_libs)
     
