@@ -36,8 +36,6 @@ class TestCommandLine:
         assert len(captured.err) == 0          # no error output
 
     def test_help_imports(self, capsys, monkeypatch):
-        # Do we want to reference this path better?
-        monkeypatch.syspath_prepend('./tests/test_resource_pack/')
         testargs = ["riffdog", "-i", "test_resource_pack", "-h"]
         with patch('sys.argv', testargs):
             with pytest.raises(SystemExit) as pytest_wrapped_e:

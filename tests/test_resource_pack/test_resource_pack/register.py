@@ -7,7 +7,7 @@ from importlib import import_module
 logger = logging.getLogger(__name__)
 
 def register_resources():
-    logger.info("AWS Resource Pack loading")
+    logger.info("Test Resource Pack loading")
 
     for (_, name, is_package) in pkgutil.walk_packages([os.path.join(os.path.dirname(__file__), "resources")]):
         if is_package:

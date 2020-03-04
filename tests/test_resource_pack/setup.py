@@ -52,7 +52,8 @@ setup(
     ],
 
     # What does your project relate to?
-
+    
+    packages=find_packages(exclude=['tests', ]),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
