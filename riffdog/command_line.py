@@ -91,7 +91,7 @@ def main():
     
     _add_core_arguments(pre_parser)
     
-    pre_parsed_args = pre_parser.parse_args(sys.argv)
+    pre_parsed_args = pre_parser.parse_args(sys.argv[1:])
 
     logging_level = logging.ERROR
 
@@ -121,14 +121,13 @@ def main():
     
     # Parse args.
     
-    parsed_args = parser.parse_args(sys.argv)
+    parsed_args = parser.parse_args(sys.argv[1:])
 
 
     # 2. Build config object
 
     for arg in vars(parsed_args):
         setattr(config, arg, getattr(parsed_args, arg))
-
     
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
