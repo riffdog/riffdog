@@ -156,7 +156,7 @@ def _disk_inspector(state_location):
                     _disk_inspector("%s/%s/" % (state_location, direc))
 
         if os.path.isfile(target):
-            file_inspector(target)
+            _file_inspector(target)
     else:
         logger.warning("Location %s does not seem to exist" % state_location)
     pass
