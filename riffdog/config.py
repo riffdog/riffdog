@@ -10,7 +10,7 @@ class ScanMode(Enum):
 
 class StateStorage(Enum):
     AWS_S3 = 1
-    # FILE = 2
+    FILE = 2
 
 
 class RDConfig:

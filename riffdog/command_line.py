@@ -65,7 +65,7 @@ def find_arguments(argparser, imports):
             imported.config()
         except Exception as e:
             #print(e)
-            logging.warn("Exception loading %s - might not be installed, or errors on load" % project)
+            logging.warning("Exception loading %s - might not be installed, or errors on load" % project)
             # Can not raise here because you want to pass on optional core modules
             
 
@@ -78,7 +78,7 @@ def _add_core_arguments(parser):
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
     parser.add_argument('--include-resource', help="Includes a particular resource", action="append", default=[])
-    
+    parser.add_argument('dir', nargs='*', help="Folders containing state files *or* a specific state", default=None)
 
 def main():
     """
@@ -129,12 +129,21 @@ def main():
     for arg in vars(parsed_args):
         setattr(config, arg, getattr(parsed_args, arg))
     
+    if parsed_args.dir:
+        config.state_storage = StateStorage.FILE
+        config.state_file_locations = parsed_args.dir
+    elif parsed_args.bucket:
+        config.state_storage = StateStorage.AWS_S3
+        config.state_file_locations = parsed_args.bucket[0]
+    else:
+        #? pass? - if config file driven but if not caught by the len(config.state_file_locations ebelow
+        pass
+
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
 
     # These need to be added in as defaults:
-    config.state_storage = StateStorage.AWS_S3
-
+    
     # If there are no statefiles, quit early.
     if len(config.state_file_locations) == 0:
         print("No state file locations given - stopping scan early - run `riffdog -h`  for help", file=sys.stderr)
