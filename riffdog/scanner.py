@@ -229,10 +229,13 @@ def _search_state(filename, content):
         if parsed['version'] > 3:
             elements = parsed['resources']
         else:
-            elements = parsed['modules'][0]['resources'].values()
+            # elements = parsed['modules'][0]['resources'].values()
+            logger.warning("only state version v4 and above files are not supported right now")
+            # a bit of a cheeky return - not raising, just abandoning early.
+            return
 
         for res in elements:
-            if res['type'] in config.elements_to_scan:
+            if res['type'] in config.elements_to_scan or (res['type'] in rd.resource_aliases and rd.resource_aliases[res['type']] in config.elements_to_scan):
                 element = rd.lookup(res['type'])
                 if element:
                     logger.info("Found and processing a resource of type %s" % res['type'])
