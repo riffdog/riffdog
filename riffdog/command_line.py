@@ -135,9 +135,6 @@ def main():
     elif parsed_args.bucket:
         config.state_storage = StateStorage.AWS_S3
         config.state_file_locations = parsed_args.bucket[0]
-    else:
-        #? pass? - if config file driven but if not caught by the len(config.state_file_locations ebelow
-        pass
 
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]

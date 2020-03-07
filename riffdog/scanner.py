@@ -159,7 +159,7 @@ def _disk_inspector(state_location):
             _file_inspector(target)
     else:
         logger.warning("Location %s does not seem to exist" % state_location)
-    pass
+    
 
 def _file_inspector(filename):
     logger.info("Reading %s" % filename )
@@ -201,9 +201,8 @@ def _s3_state_fetch(bucket_name, prefix=""):
 
     # _search_state(bucket_name, "sandbox_main/services/django_lambda_test/terraform.tfstate", s3)
 
-    for item in items.get('Contents', []):
-        if item['Key'].endswith("terraform.tfstate"): # FIXME: in future how can we better identify these files?
-            _search_s3_state(bucket_name, item['Key'])
+    for item in items.get('Contents', []):    
+        _search_s3_state(bucket_name, item['Key'])
 
 
 def _search_s3_state(bucket_name, key):
@@ -250,5 +249,5 @@ def _search_state(filename, content):
         # version has changed
         logger.info(e)
         logger.warning("Bad Terraform file: %s (perhaps a TF/state version issue?) %s" % (filename, type(e)))
-        pass
+
 
