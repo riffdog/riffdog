@@ -2,7 +2,7 @@ import os
 
 from riffdog.config import RDConfig
 
-DEFAULT_REGION="us-east-1"
+DEFAULT_REGION = "us-east-1"
 
 def add_args(parser):
 
@@ -12,5 +12,4 @@ def add_args(parser):
 def config():
     config = RDConfig()
     config.test_default_value = "some default value"
-
 
