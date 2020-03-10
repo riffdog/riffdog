@@ -65,7 +65,7 @@ def find_arguments(argparser, imports):
             imported.config()
         except Exception as e:
             #print(e)
-            logging.warn("Exception loading %s - might not be installed, or errors on load" % project)
+            logging.warning("Exception loading %s - might not be installed, or errors on load" % project)
             # Can not raise here because you want to pass on optional core modules
             
 
@@ -78,19 +78,20 @@ def _add_core_arguments(parser):
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
     parser.add_argument('--include-resource', help="Includes a particular resource", action="append", default=[])
-    
+    parser.add_argument('dir', nargs='*', help="Folders containing state files *or* a specific state", default=None)
 
-def main(*args):
+def main():
     """
     This is the command line entry point
     """
+
     # Pre-stuff - use argparser to get command line arguments
 
-    pre_parser = ArgumentParser(description='Terraform - AWS infrastructure scanner', add_help=False)
+    pre_parser = ArgumentParser(add_help=False)
     
     _add_core_arguments(pre_parser)
     
-    pre_parsed_args = pre_parser.parse_args(*args)
+    pre_parsed_args = pre_parser.parse_args(sys.argv[1:])
 
     logging_level = logging.ERROR
 
@@ -107,7 +108,7 @@ def main(*args):
     logging.basicConfig(level=logging_level, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
     logger.debug("cmd starting")
 
-    parser = argparse.ArgumentParser(description='Terraform - AWS infrastructure scanner')
+    parser = argparse.ArgumentParser(description='Terraform - Reality Infrastructure Scanner')
     _add_core_arguments(parser)
 
     config = RDConfig()
@@ -120,21 +121,26 @@ def main(*args):
     
     # Parse args.
     
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(sys.argv[1:])
 
 
     # 2. Build config object
 
     for arg in vars(parsed_args):
         setattr(config, arg, getattr(parsed_args, arg))
-
     
+    if parsed_args.dir:
+        config.state_storage = StateStorage.FILE
+        config.state_file_locations = parsed_args.dir
+    elif parsed_args.bucket:
+        config.state_storage = StateStorage.AWS_S3
+        config.state_file_locations = parsed_args.bucket[0]
+
     if parsed_args.bucket is not None:
         config.state_file_locations = parsed_args.bucket[0]
 
     # These need to be added in as defaults:
-    config.state_storage = StateStorage.AWS_S3
-
+    
     # If there are no statefiles, quit early.
     if len(config.state_file_locations) == 0:
         print("No state file locations given - stopping scan early - run `riffdog -h`  for help", file=sys.stderr)

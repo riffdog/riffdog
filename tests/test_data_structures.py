@@ -3,6 +3,10 @@ from riffdog.config import RDConfig
 
 class TestRDConfig:
 
+    def setup_method(self, method):
+        RDConfig.instance = None
+        #ResourceDirectory.instance = None
+
     def test_exclude_no_elements(self):
         config = RDConfig()
 
@@ -34,3 +38,4 @@ class TestRDConfig:
 
         assert id(config) == id(config2)
         assert config.regions == config2.regions
+

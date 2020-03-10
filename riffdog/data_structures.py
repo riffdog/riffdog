@@ -6,32 +6,6 @@ and the command line interface
 from .resource import ResourceDirectory
 
 
-# class ReportElement:
-#     """
-#     Output report object for reporting things it finds.
-#     """
-
-#     matched = None
-#     """
-#     An array of items that were present in both Terraform and Real
-#     """
-
-#     in_tf_but_not_real = None
-#     """
-#     An array of items that Terraform thought should be there, but could not be found
-#     """
-
-#     in_real_but_not_tf = None
-#     """
-#     An array of items that are there, but were not in the Terraform state files
-#     """
-
-#     def __init__(self):
-#         self.matched = []
-#         self.in_tf_but_not_real = []
-#         self.in_real_but_not_tf = []
-
-
 class FoundItem:
     """
     An item that has been found, either in the state files *or* in the real world.

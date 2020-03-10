@@ -8,10 +8,9 @@ class ScanMode(Enum):
     LIGHT = 1
     DEEP = 2
 
-
 class StateStorage(Enum):
     AWS_S3 = 1
-    # FILE = 2
+    FILE = 2
 
 
 class RDConfig:
@@ -20,7 +19,7 @@ class RDConfig:
     """
 
     class __RDConfig:
-        _configurations = {}
+        _configurations = None
 
         @property
         def elements_to_scan(self):
@@ -31,6 +30,9 @@ class RDConfig:
             return resources
 
         def __init__(self):
+
+            self._configurations = {}
+            
             # Set defaults and must-have settings
             self.external_resource_libs = [
                 'riffdog_aws',
@@ -47,10 +49,16 @@ class RDConfig:
             self.scan_mode = ScanMode.LIGHT
 
         def __getattr__(self, name):
-            return self._configurations[name]
+            if not name == "_configurations":
+                return self._configurations[name]
+            else:
+                raise KeyError("_configurations is restricted keyword for config")
 
         def __setattr__(self, name, value):
-            self._configurations[name] = value
+            if name =="_configurations":
+                super().__setattr__(name, value)
+            else:
+                self._configurations[name] = value
 
             
     instance = None
@@ -63,6 +71,6 @@ class RDConfig:
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
-    def __setattr__(self, name):
-        return setattr(self.instance, name)
+    def __setattr__(self, name, value):
+        return setattr(self.instance, name, value)
 
