@@ -34,16 +34,10 @@ class ReportEncoder(JSONEncoder):
             }
 
             if o.in_real_world:
-                out['inRealWorld'] = True
                 out['realWorldId'] = o.real_id
-            else:
-                out['inRealWorld'] = False
 
             if o.in_terraform:
-                out['inTerraform'] = True
                 out['terraformId'] = o.terraform_id
-            else:
-                out['inTerraform'] = False
 
             return out
         else:
@@ -168,9 +162,9 @@ def main():
                 filtered_data.append(item)
 
         if parsed_args.json_indent:
-            print(dumps(results, cls=ReportEncoder, indent=parsed_args.json_indent))
+            print(dumps(filtered_data, cls=ReportEncoder, indent=parsed_args.json_indent))
         else:
-            print(dumps(results, cls=ReportEncoder))
+            print(dumps(filtered_data, cls=ReportEncoder))
  
     else:
 
