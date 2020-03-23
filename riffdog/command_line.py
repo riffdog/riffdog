@@ -30,20 +30,14 @@ class ReportEncoder(JSONEncoder):
             out = {
                 "matched": o.matched,
                 "inRealWorld": o.in_real_world,
-                "inTerraForm": o.in_real_but_not_tf
+                "inTerraForm": o.in_terraform
             }
 
             if o.in_real_world:
-                out['inRealWorld'] = True
                 out['realWorldId'] = o.real_id
-            else:
-                out['inRealWorld'] = False
 
             if o.in_terraform:
-                out['inTerraform'] = True
                 out['terraformId'] = o.terraform_id
-            else:
-                out['inTerraform'] = False
 
             return out
         else:
@@ -75,6 +69,7 @@ def _add_core_arguments(parser):
     parser.add_argument('-v', '--verbose', help='Run in Verbose mode (try -vv for info output)', action='count')
     parser.add_argument('-b', '--bucket', help='Bucket containing state file location', action='append', nargs=1)
     parser.add_argument('--json', help='Produce Json output rather then Human readble', action='store_const', const=True)  # noqa: E501
+    parser.add_argument('--json-indent', help='Pretty print json with indents of this value', type=int)
     parser.add_argument('--show-matched', help='Shows all resources, including those that matched', action='store_const', const=True)  # noqa: E501
     parser.add_argument('--exclude-resource', help="Excludes a particular resource", action='append', default=[])
     parser.add_argument('--include-resource', help="Includes a particular resource", action="append", default=[])
@@ -123,7 +118,6 @@ def main():
     
     parsed_args = parser.parse_args(sys.argv[1:])
 
-
     # 2. Build config object
 
     for arg in vars(parsed_args):
@@ -161,7 +155,17 @@ def main():
     results = rd._items  # FIXME - accessing internal object
 
     if parsed_args.json:
-        print(dumps(results, cls=ReportEncoder))
+
+        filtered_data = []
+        for item in results:
+            if not item.matched or parsed_args.show_matched:
+                filtered_data.append(item)
+
+        if parsed_args.json_indent:
+            print(dumps(filtered_data, cls=ReportEncoder, indent=parsed_args.json_indent))
+        else:
+            print(dumps(filtered_data, cls=ReportEncoder))
+ 
     else:
 
         table_data = []
