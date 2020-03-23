@@ -4,6 +4,25 @@ Version History
 *Please note this is most recent at top.*
 
 
+``0.1.0`` Beta
+==============
+
+*Released 2nd March 2020*
+
+To install this, please follow the guide - you will need at least one 'resource pack', and at the time of writing only the riffdog_aws resource pack exists.
+
+``pip install riffdog[aws]``
+
+Then to run:
+
+``riffdog -b bucket_name_containing_states --show-matched``
+
+Major changes:
+
+* The return data structure is radically different to before, which makes resource pack developers life easier.
+* Streamlined tabulated data outputs.
+* Introduced 'dirty' flag to indicate where resources exist, but do not match in some form of sub-data element.
+
 ``0.0.1`` Beta Launch 
 =====================
 
